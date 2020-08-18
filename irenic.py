@@ -13,6 +13,7 @@ from kivy.clock import Clock
 import csv
 
 list_desc = []
+lista = []
 
 class irenicApp(App):
 	def build(self):
@@ -187,95 +188,106 @@ class VentasPage(BoxLayout):
 		
 		self.add_widget(box_buttons)
 
-		but_vuelvo.bind(on_press=self.vuelvo_start)
+		but_vuelvo.bind(on_press = self.vuelvo_start)
 		but_carrito.bind(on_press = self.voy_carrito)
-		
+
+		self.cargo_art()
+
+
 	
 	def voy_carrito(self,instance):
+		irenic_app.carrito_page.armo_items()
 		irenic_app.screen_manager.current = "Carrito"
 
 	def vuelvo_start(self, instance):
 		irenic_app.screen_manager.current = "Start"
 
-
+	def cargo_art(self):
+		with open("lista de productos total.csv") as f:
+			copio_lista = csv.reader(f, delimiter=',')
+			for cada_art in copio_lista:
+				lista.append(cada_art)
+	
 	def on_text(self, instance, value):
 		self.layout.clear_widgets()
-		with open("lista de productos total.csv") as f:
-			lista = csv.reader(f, delimiter=',')
-			self.indice = 0
-			self.matrix_art = []
-			for articulo in lista:
-				if value.lower() in articulo[1].lower() and value != "" and articulo[1] != "ARTICULOS":
-					
-					self.desc = Label(text=articulo[1][0:30],
-								halign = "left", 
-								#size = self.texture_size,
-								size_hint=(.4, .3),
-								size_hint_y=None,
-								height=40,
-								#text_size = self.size,
-								)
-					self.precio = Label(text = articulo[3],
-								halign = "right", 
-								#size = self.texture_size,
-								size_hint=(.2, .3),
-								size_hint_y=None,
-								height=40,
-								#text_size = self.size,
-								)
-					self.stock = Label(text = articulo[4],
-								halign = "right", 
-								#size = self.texture_size,
-								size_hint=(.2, .3),
-								size_hint_y=None,
-								height=40,
-								 )
-					self.var_cant = f"self.cantidad{self.indice}"
-					asig_text = """TextInput(
-							multiline=False, 
-							readonly=False, 
-							halign="right", 
-							font_size=20,
-							size_hint=(.1, .3),
-							input_filter = "int",
-							write_tab = "False",
-							)"""
-					
-					exec("%s = %s" %(self.var_cant,asig_text))
-					"""self.cantidad = TextInput(
-							multiline=False, 
-							readonly=False, 
-							halign="right", 
-							font_size=20,
-							size_hint=(.1, .3),
-							input_filter = "float",
-							write_tab = "False",
-							)"""
+		
+		self.indice = 0
+		self.matrix_art = []
+		
+		for articulo in lista:
+			if value.lower() in articulo[1].lower() and value != "" and articulo[1] != "ARTICULOS":
+				
+				art_ind_stock = lista.index(articulo)
+				self.desc = Label(text=articulo[1][0:30],
+							halign = "left", 
+							#size = self.texture_size,
+							size_hint=(.4, .3),
+							size_hint_y=None,
+							height=40,
+							#text_size = self.size,
+							)
+				self.precio = Label(text = articulo[3],
+							halign = "right", 
+							#size = self.texture_size,
+							size_hint=(.2, .3),
+							size_hint_y=None,
+							height=40,
+							#text_size = self.size,
+							)
+				self.stock = Label(text = articulo[4],
+							halign = "right", 
+							#size = self.texture_size,
+							size_hint=(.2, .3),
+							size_hint_y=None,
+							height=40,
+							 )
+				self.var_cant = f"self.cantidad{self.indice}"
+				asig_text = """TextInput(
+						multiline=False, 
+						readonly=False, 
+						halign="right", 
+						font_size=20,
+						size_hint=(.1, .3),
+						input_filter = "int",
+						write_tab = "False",
+						)"""
+				
+				exec("%s = %s" %(self.var_cant,asig_text))
+				"""self.cantidad = TextInput(
+						multiline=False, 
+						readonly=False, 
+						halign="right", 
+						font_size=20,
+						size_hint=(.1, .3),
+						input_filter = "float",
+						write_tab = "False",
+						)"""
 
-					var_but_agregar = """Button (text = "agregar",
-							size_hint = (.1, .3),
-											)"""
+				var_but_agregar = """Button (text = "agregar",
+						size_hint = (.1, .3),
+										)"""
 
-					exec(f"but_agregar{str(self.indice)} = {var_but_agregar}") 
-					exec(f"but_agregar{str(self.indice)}.ID = {str(self.indice)}")
-					
-					
-					
-					self.matrix_art.append([self.desc.text, self.precio.text])
-					exec(f"but_agregar{str(self.indice)}.bind(on_press=self.agregar_art)")
+				exec(f"but_agregar{str(self.indice)} = {var_but_agregar}") 
+				exec(f"but_agregar{str(self.indice)}.ID = {str(self.indice)}")
+				
+				
+				
+				self.matrix_art.append([self.desc.text, self.precio.text, str(art_ind_stock)])
+				exec(f"but_agregar{str(self.indice)}.bind(on_press=self.agregar_art)")
 
-					self.layout.add_widget(self.desc)
-					self.layout.add_widget(self.precio)
-					self.layout.add_widget(self.stock)
-					exec("self.layout.add_widget(%s)" %(self.var_cant))
-					exec(f"self.layout.add_widget(but_agregar{str(self.indice)})")
-					self.indice +=1	
+				self.layout.add_widget(self.desc)
+				self.layout.add_widget(self.precio)
+				self.layout.add_widget(self.stock)
+				exec("self.layout.add_widget(%s)" %(self.var_cant))
+				exec(f"self.layout.add_widget(but_agregar{str(self.indice)})")
+				self.indice +=1	
 
 	def agregar_art(self, instance):
 		
 		
 		descripcion = self.matrix_art[int(instance.ID)][0]
 		precio_unit = self.matrix_art[int(instance.ID)][1]
+		codigo_art = self.matrix_art[int(instance.ID)][2]
 		var_cantidad = f"self.cantidad{instance.ID}.text"
 		ldic = locals()
 		
@@ -287,7 +299,7 @@ class VentasPage(BoxLayout):
 			exec(f"subtotal = int(precio_unit) * int({var_cantidad})", globals(),ldic)
 			subtotal = ldic["subtotal"]
 			
-			info = f"{descripcion} {precio_unit} {cantidad} {subtotal}"
+			info = f"{codigo_art},{descripcion},{precio_unit},{cantidad},{subtotal}"
 			
 			irenic_app.carrito_page.update_info(info)
 			irenic_app.screen_manager.current = 'Carrito'
@@ -358,8 +370,8 @@ class CarritoPage(BoxLayout):
 		
 
 	# Called with a message, to update message text in widget
-	def realizo_pago(self, instance):
-		return
+
+		
 
 	def update_info(self, message):
 		
@@ -367,7 +379,7 @@ class CarritoPage(BoxLayout):
 		if len(list_desc)>0:
 
 			for i in range(len(list_desc)):
-				if list_desc[i].split()[0:-2] == message.split()[0:-2]:
+				if list_desc[i].split(",")[0:-2] == message.split(",")[0:-2]:
 					list_desc[i] = message
 					agrego = False
 					break
@@ -430,7 +442,23 @@ class CarritoPage(BoxLayout):
 	def update_text_width(self, *_):
 		carrito_page.grid_desc.message.text_size = (carrito_page.grid_desc.message.width * 0.9, None)
 								
-				
+	def realizo_pago(self, instance):
+		with open("lista venta productos diaria.csv" , mode = "a") as v:
+			venta = csv.writer(v, delimiter = "," , lineterminator='\n')
+			for item in list_desc:
+				indice = int(item.split()[0])
+				lista[indice][4] = str(int(lista[indice][4])-int(item.split()[-2]))
+				venta.writerow(item)
+
+		with open("lista de productos total.csv" , mode = "w") as f:
+			articulos = csv.writer(f, delimiter = "," , lineterminator='\n')
+			for articulo in lista:
+				articulos.writerow(articulo)
+		list_desc[:] = []
+		self.armo_items()
+		irenic_app.ventas_page.layout.clear_widgets()
+
+			
 
 if __name__ == '__main__':
 	irenic_app = irenicApp()
