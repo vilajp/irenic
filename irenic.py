@@ -111,7 +111,7 @@ class VentasPage(BoxLayout):
 				)
 		########################################################
 		
-		buscador = TextInput(
+		self.buscador = TextInput(
 							text = "",
 							multiline=False, 
 							readonly=False, 
@@ -149,7 +149,7 @@ class VentasPage(BoxLayout):
 		titulos.add_widget(tit4)
 		titulos.add_widget(tit5)
 
-		buscador.bind(text = self.on_text)
+		self.buscador.bind(text = self.on_text)
 
 		box_buttons = BoxLayout(size_hint = (1, .2))
 
@@ -162,7 +162,7 @@ class VentasPage(BoxLayout):
 							#size_hint = (.3, .2),
 							)
 
-		self.add_widget(buscador)
+		self.add_widget(self.buscador)
 
 		
 		self.add_widget(titulos)
@@ -405,7 +405,7 @@ class CarritoPage(BoxLayout):
 			self.grid_desc.add_widget(carrito_vacio)
 		
 		for msg in list_desc:
-			total = msg.split()
+			total = msg.split(",")
 			
 			var_cada_desc = f"self.cada_desc{str(list_desc.index(msg))}"
 			var_lab = """Label(text=msg,
@@ -446,10 +446,10 @@ class CarritoPage(BoxLayout):
 		with open("lista venta productos diaria.csv" , mode = "a") as v:
 			venta = csv.writer(v, delimiter = "," , lineterminator='\n')
 			for item in list_desc:
-				indice = int(item.split()[0])
-				lista[indice][4] = str(int(lista[indice][4])-int(item.split()[-2]))
-				venta.writerow(item)
-
+				venta.writerow(item.split(","))
+				indice = int(item.split(",")[0])
+				lista[indice][4] = str(int(lista[indice][4])-int(item.split(",")[-2]))
+				
 		with open("lista de productos total.csv" , mode = "w") as f:
 			articulos = csv.writer(f, delimiter = "," , lineterminator='\n')
 			for articulo in lista:
@@ -457,6 +457,7 @@ class CarritoPage(BoxLayout):
 		list_desc[:] = []
 		self.armo_items()
 		irenic_app.ventas_page.layout.clear_widgets()
+		irenic_app.ventas_page.buscador.text = ""
 
 			
 
