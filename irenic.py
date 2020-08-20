@@ -217,7 +217,7 @@ class VentasPage(BoxLayout):
 		self.matrix_art = []
 		
 		for articulo in lista:
-			if value.lower() in articulo[1].lower() and value != "" and articulo[1] != "ARTICULOS":
+			if value.lower() in articulo[1].lower() and value != "" and articulo[1] != "ARTICULOS" and articulo[3] != "":
 				
 				art_ind_stock = lista.index(articulo)
 				self.desc = Label(text=articulo[1][0:30],
@@ -440,7 +440,7 @@ class CarritoPage(BoxLayout):
 			total = msg.split(",")
 			
 			var_cada_desc = f"self.cada_desc{str(list_desc.index(msg))}"
-			var_lab = """Label(text=msg.replace(",", " "),
+			var_lab = """Label(text=msg.replace(",", " ")[2:],
 							size_hint = (1,.2),
 								)"""
 			exec(f"{var_cada_desc} = {var_lab}")
