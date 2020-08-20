@@ -1,5 +1,6 @@
 import os
 os.environ['KIVY_GL_BACKEND'] = 'angle_sdl2'
+from datetime import datetime
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.button import Button
@@ -408,7 +409,7 @@ class CarritoPage(BoxLayout):
 			total = msg.split(",")
 			
 			var_cada_desc = f"self.cada_desc{str(list_desc.index(msg))}"
-			var_lab = """Label(text=msg,
+			var_lab = """Label(text=msg.replace(",", " "),
 							size_hint = (1,.2),
 								)"""
 			exec(f"{var_cada_desc} = {var_lab}")
@@ -446,7 +447,9 @@ class CarritoPage(BoxLayout):
 		with open("lista venta productos diaria.csv" , mode = "a") as v:
 			venta = csv.writer(v, delimiter = "," , lineterminator='\n')
 			for item in list_desc:
-				venta.writerow(item.split(","))
+				now = datetime.now()
+				linea = f"{now.date()},{now.time()},{item}"
+				venta.writerow(linea.split(','))
 				indice = int(item.split(",")[0])
 				lista[indice][4] = str(int(lista[indice][4])-int(item.split(",")[-2]))
 				
