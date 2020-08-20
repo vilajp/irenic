@@ -8,6 +8,7 @@ from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
+from kivy.uix.popup import Popup 
 from kivy.core.window import Window
 from kivy.app import App
 from kivy.clock import Clock
@@ -356,7 +357,7 @@ class CarritoPage(BoxLayout):
 								pos_hint={"center_x": 0.5, "center_y": 0.5},
 								#size_hint = (.3, .2),
 								)
-		self.but_pagar.bind(on_press = self.realizo_pago)
+		self.but_pagar.bind(on_press = self.pido_confirmacion)
 		# By default every widget returns it's side as [100, 100], it gets finally resized,
 		# but we have to listen for size change to get a new one
 		# more: https://github.com/kivy/kivy/issues/1044
@@ -372,7 +373,37 @@ class CarritoPage(BoxLayout):
 
 	# Called with a message, to update message text in widget
 
-		
+	def pido_confirmacion(self, instance):
+
+		if self.lab_total.text != "0":
+			layout = GridLayout(cols = 1, padding = 10) 
+	  
+			askLabel = Label(text = "Confirma compra por:",
+							size_hint = (1,.5),
+							) 
+			totalLabel = Label(text = self.lab_total.text,
+								size_hint = (1,1),
+								font_size = 55,
+								color = [0,1,0,1],
+								)
+			closeButton = Button(text = "Pagar",
+								size_hint=(1,.5),
+								) 
+	  
+			layout.add_widget(askLabel)
+			layout.add_widget(totalLabel) 
+			layout.add_widget(closeButton)        
+	  
+			# Instantiate the modal popup and display 
+			self.popup = Popup(title ='ATENCION!', 
+						  content = layout, 
+						  size_hint =(None, None), size =(300, 300))   
+			self.popup.open()    
+	  
+			# Attach close button press with popup.dismiss action 
+			closeButton.bind(on_press = self.realizo_pago)
+			
+
 
 	def update_info(self, message):
 		
@@ -437,8 +468,6 @@ class CarritoPage(BoxLayout):
 		list_desc.remove(list_desc[int(instance.ID)])
 
 		self.armo_items()
-
-
 	# Called on label width update, so we can set text width properly - to 90% of label width
 	def update_text_width(self, *_):
 		carrito_page.grid_desc.message.text_size = (carrito_page.grid_desc.message.width * 0.9, None)
@@ -461,6 +490,7 @@ class CarritoPage(BoxLayout):
 		self.armo_items()
 		irenic_app.ventas_page.layout.clear_widgets()
 		irenic_app.ventas_page.buscador.text = ""
+		self.popup.dismiss()
 
 			
 
