@@ -17,6 +17,12 @@ import csv
 list_desc = []
 lista = []
 
+def cargo_art():
+		with open("lista de productos total.csv") as f:
+			copio_lista = csv.reader(f, delimiter=',')
+			for cada_art in copio_lista:
+				lista.append(cada_art)
+
 class irenicApp(App):
 	def build(self):
 		
@@ -30,6 +36,12 @@ class irenicApp(App):
 		screen = Screen(name='Start')
 		screen.add_widget(self.start_page)
 		self.screen_manager.add_widget(screen)
+
+		self.ingresos_page = IngresosPage()
+		screen = Screen(name='Ingresos')
+		screen.add_widget(self.ingresos_page)
+		self.screen_manager.add_widget(screen)
+
 
 		self.ventas_page = VentasPage()
 		screen = Screen(name='Ventas')
@@ -49,6 +61,9 @@ class StartPage(BoxLayout):
 	def __init__(self, **kwargs):
 		super().__init__(**kwargs)
 
+		#CARGO LISTA DE ARTICULOS
+		cargo_art()
+
 		self.orientation = "vertical"
 		lista_botones = ["INGRESOS", "VENTAS", "INFORMES"]
 		for idx in range(len(lista_botones)):
@@ -61,14 +76,51 @@ class StartPage(BoxLayout):
 	def elijo_pantalla(self, instance):
 
 		if instance.text == "INGRESOS":
-			#PANTALLA INGRESOS
-			return
+			irenic_app.screen_manager.current = 'Ingresos'
+		
 		elif instance.text == "VENTAS":
 			irenic_app.screen_manager.current = 'Ventas'
 		else:
 			#PANTALLA INFORMES
 			return
 			
+class IngresosPage(BoxLayout):
+	def __init__(self, **kwargs):
+		super().__init__(**kwargs)
+
+		self.orientation = "vertical"
+
+		lab_ask = Label(text = "Seleccione Proveedor:", size_hint = (1,.2))
+
+		self.add_widget(lab_ask)
+
+		grid_botones = BoxLayout(size_hint = (1,.2))
+
+		with open("proveedores.csv") as prov:
+			lista_proveedor = csv.reader(prov, delimiter = ",")
+			indice = 1
+			for proveedor in lista_proveedor:
+				if proveedor[0]!= "NOMBRE":
+					exec(f"bot_prov{indice} = Button(text = proveedor[0],)")
+					exec(f"grid_botones.add_widget(bot_prov{indice})")
+					exec(f"bot_prov{indice}.bind(on_press= self.articulo_proveedor)")
+					indice += 1
+
+
+		self.add_widget(grid_botones)
+
+		rotador = ScrollView(size_hint=(1, 1))
+		
+		grid_tex_art_nuevo = GridLayout (cols = 5)
+
+		rotador.add_widget(grid_tex_art_nuevo)
+		
+		self.add_widget(rotador)
+
+	def articulo_proveedor(self, instance):
+		#,ARTICULOS,MAYORISTA,MINORISTA,100,proveedor,margen
+		return
+
 
 class VentasPage(BoxLayout):
 
@@ -193,7 +245,7 @@ class VentasPage(BoxLayout):
 		but_vuelvo.bind(on_press = self.vuelvo_start)
 		but_carrito.bind(on_press = self.voy_carrito)
 
-		self.cargo_art()
+		
 
 
 	
@@ -204,12 +256,7 @@ class VentasPage(BoxLayout):
 	def vuelvo_start(self, instance):
 		irenic_app.screen_manager.current = "Start"
 
-	def cargo_art(self):
-		with open("lista de productos total.csv") as f:
-			copio_lista = csv.reader(f, delimiter=',')
-			for cada_art in copio_lista:
-				lista.append(cada_art)
-	
+		
 	def on_text(self, instance, value):
 		self.layout.clear_widgets()
 		
