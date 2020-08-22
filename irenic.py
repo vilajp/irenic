@@ -90,11 +90,11 @@ class IngresosPage(BoxLayout):
 
 		self.orientation = "vertical"
 
-		lab_ask = Label(text = "Seleccione Proveedor:", size_hint = (1,.2))
+		self.lab_ask = Label(text = "Seleccione Proveedor:", size_hint = (1,.2))
 
-		self.add_widget(lab_ask)
+		self.add_widget(self.lab_ask)
 
-		grid_botones = BoxLayout(size_hint = (1,.2))
+		self.grid_botones = BoxLayout(size_hint = (1,.2))
 
 		with open("proveedores.csv") as prov:
 			lista_proveedor = csv.reader(prov, delimiter = ",")
@@ -102,24 +102,82 @@ class IngresosPage(BoxLayout):
 			for proveedor in lista_proveedor:
 				if proveedor[0]!= "NOMBRE":
 					exec(f"bot_prov{indice} = Button(text = proveedor[0],)")
-					exec(f"grid_botones.add_widget(bot_prov{indice})")
+					exec(f"self.grid_botones.add_widget(bot_prov{indice})")
 					exec(f"bot_prov{indice}.bind(on_press= self.articulo_proveedor)")
+					exec(f"bot_prov{indice}.ID = indice")
 					indice += 1
 
+			exec(f"bot_prov{indice} = Button(text = 'Nuevo Proveedor',)")
+			exec(f"self.grid_botones.add_widget(bot_prov{indice})")
+			exec(f"bot_prov{indice}.bind(on_press= self.articulo_proveedor)")
+			exec(f"bot_prov{indice}.ID = indice")
+										
+		self.add_widget(self.grid_botones)
 
-		self.add_widget(grid_botones)
+		self.box_text_lab = BoxLayout (size_hint = (1, .2))
+		self.add_widget(self.box_text_lab)
 
-		rotador = ScrollView(size_hint=(1, 1))
+		rotador = ScrollView()
 		
-		grid_tex_art_nuevo = GridLayout (cols = 5)
+		self.grid_tex_art = GridLayout (cols = 3,
+										spacing=5, 
+										size_hint_y=None,
+										)
 
-		rotador.add_widget(grid_tex_art_nuevo)
+
+		self.grid_tex_art.bind(minimum_height=self.grid_tex_art.setter('height'))
 		
+		rotador.add_widget(self.grid_tex_art)
 		self.add_widget(rotador)
 
 	def articulo_proveedor(self, instance):
 		#,ARTICULOS,MAYORISTA,MINORISTA,100,proveedor,margen
+		self.box_text_lab.clear_widgets()
+		self.grid_botones.clear_widgets()
+		self.remove_widget(self.lab_ask)
+		if instance.text != "Nuevo Proveedor":
+			self.lab_prov = Label ( text = instance.text)
+			buscador_ing = TextInput(
+							text = "",
+							multiline=False, 
+							readonly=False, 
+							halign="left", 
+							font_size=55,
+							size_hint=(1, 1),
+							#input_filter = "float",
+							write_tab = "False",
+							)
+			
+			self.grid_botones.add_widget(self.lab_prov)
+			self.box_text_lab.add_widget(buscador_ing)
+			buscador_ing.bind(text = self.armo_items_ing)
+		else:
+			label_ing = Label(text = "Ingrese los datos del Nuevo Proveedor")
+			self.box_text_lab.add_widget(label_ing)
+			
+	def armo_items_ing(self, instance, value):
+		self.grid_tex_art.clear_widgets()
+		for i in range(len(lista)):
+			if value.lower() in lista[i][1].lower() and value != "" and lista[i][5] == self.lab_prov.text:
+				exec(f"lab_desc_art{i}= Label(text = lista[i][1][0:30], size_hint=(1,.2))")
+				exec(f"self.grid_tex_art.add_widget(lab_desc_art{i})")
+
+				exec(f"text_cant_art{i}= TextInput(size_hint=(1,.2))")
+				exec(f"self.grid_tex_art.add_widget(text_cant_art{i})")
+
+				exec(f"text_precio_art{i}= TextInput(size_hint=(1,.2))")
+				exec(f"self.grid_tex_art.add_widget(text_precio_art{i})")
+
+				# exec(f"bot_art_ing{i} = Button(Text = 'agregar', size_hint = (.1,.2))")
+				# exec(f"self.grid_tex_art.add_widget(bot_art_ing{i})")
+				# exec(f"bot_art_ing{i}.ID = str(i)")
+				# exec(f"bot_art_ing{i}.bind(on_press = agrego_art_ing)")
+
+	def agrego_art_ing():
 		return
+
+
+
 
 
 class VentasPage(BoxLayout):
