@@ -89,6 +89,7 @@ class IngresosPage(BoxLayout):
 		super().__init__(**kwargs)
 
 		self.orientation = "vertical"
+		self.spacing = 5
 
 		self.lab_ask = Label(text = "Seleccione Proveedor:", size_hint = (1,.2))
 
@@ -114,12 +115,13 @@ class IngresosPage(BoxLayout):
 										
 		self.add_widget(self.grid_botones)
 
-		self.box_text_lab = BoxLayout (size_hint = (1, .2))
+		self.box_text_lab = BoxLayout (orientation = "vertical",
+										size_hint = (1, .2),
+										)
 		self.add_widget(self.box_text_lab)
 
-		rotador = ScrollView()
 		
-		self.grid_tex_art = GridLayout (cols = 3,
+		self.grid_tex_art = GridLayout (cols = 4,
 										spacing=5, 
 										size_hint_y=None,
 										)
@@ -127,12 +129,13 @@ class IngresosPage(BoxLayout):
 
 		self.grid_tex_art.bind(minimum_height=self.grid_tex_art.setter('height'))
 		
+		rotador = ScrollView(size_hint = (1,1),
+							 size=(Window.width, Window.height),)
 		rotador.add_widget(self.grid_tex_art)
 		self.add_widget(rotador)
 
 	def articulo_proveedor(self, instance):
 		#,ARTICULOS,MAYORISTA,MINORISTA,100,proveedor,margen
-		self.box_text_lab.clear_widgets()
 		self.grid_botones.clear_widgets()
 		self.remove_widget(self.lab_ask)
 		if instance.text != "Nuevo Proveedor":
@@ -142,38 +145,67 @@ class IngresosPage(BoxLayout):
 							multiline=False, 
 							readonly=False, 
 							halign="left", 
-							font_size=55,
+							font_size=30,
 							size_hint=(1, 1),
 							#input_filter = "float",
 							write_tab = "False",
 							)
+			barra_titulos_ingreso = GridLayout(cols = 4)
 			
+			tit_desc = Label(text="Descripcion", size_hint=(.5, 1),)
+			tit_cant = Label(text="Cantidad", size_hint=(.2, 1),)
+			tit_precio = Label(text="Precio", size_hint=(.2, 1),)
+			tit_boton = Label(text="", size_hint=(.2,1))
+		
+			barra_titulos_ingreso.add_widget(tit_desc)
+			barra_titulos_ingreso.add_widget(tit_cant)
+			barra_titulos_ingreso.add_widget(tit_precio)
+			barra_titulos_ingreso.add_widget(tit_boton)
+		
 			self.grid_botones.add_widget(self.lab_prov)
 			self.box_text_lab.add_widget(buscador_ing)
+			self.box_text_lab.add_widget(barra_titulos_ingreso)
+
 			buscador_ing.bind(text = self.armo_items_ing)
 		else:
 			label_ing = Label(text = "Ingrese los datos del Nuevo Proveedor")
 			self.box_text_lab.add_widget(label_ing)
-			
+			self.box_text_lab.add_widget(barra_titulos_ingreso)
+
+
 	def armo_items_ing(self, instance, value):
 		self.grid_tex_art.clear_widgets()
+		
+		
 		for i in range(len(lista)):
 			if value.lower() in lista[i][1].lower() and value != "" and lista[i][5] == self.lab_prov.text:
-				exec(f"lab_desc_art{i}= Label(text = lista[i][1][0:30], size_hint=(1,.2))")
+				var_lab_desc_art="""Label(
+							text = lista[i][1][0:30], 
+							halign = "left", 
+							#size = self.texture_size,
+							size_hint=(.5, .3),
+							size_hint_y=None,
+							height=40,)"""
+				exec(f"lab_desc_art{i}= {var_lab_desc_art}")
 				exec(f"self.grid_tex_art.add_widget(lab_desc_art{i})")
 
-				exec(f"text_cant_art{i}= TextInput(size_hint=(1,.2))")
+				exec(f"text_cant_art{i}= TextInput(size_hint=(.2,.3))")
 				exec(f"self.grid_tex_art.add_widget(text_cant_art{i})")
 
-				exec(f"text_precio_art{i}= TextInput(size_hint=(1,.2))")
+				exec(f"text_precio_art{i}= TextInput(size_hint=(.2,.3))")
 				exec(f"self.grid_tex_art.add_widget(text_precio_art{i})")
 
-				# exec(f"bot_art_ing{i} = Button(Text = 'agregar', size_hint = (.1,.2))")
-				# exec(f"self.grid_tex_art.add_widget(bot_art_ing{i})")
-				# exec(f"bot_art_ing{i}.ID = str(i)")
-				# exec(f"bot_art_ing{i}.bind(on_press = agrego_art_ing)")
-
-	def agrego_art_ing():
+				var_bot_art_ing = """Button(
+									text = "agregar", 
+									size_hint=(.2,.3),
+											)"""
+				exec(f"bot_art_ing{str(i)} = {var_bot_art_ing}")
+				exec(f"bot_art_ing{str(i)}.ID = str(i)")
+				exec(f"self.grid_tex_art.add_widget(bot_art_ing{str(i)})")
+				exec(f"bot_art_ing{str(i)}.bind(on_press = self.agrego_art_ing)")
+				
+				
+	def agrego_art_ing(self, instance):
 		return
 
 
