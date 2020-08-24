@@ -15,7 +15,9 @@ from kivy.clock import Clock
 import csv
 
 list_desc = []
+list_ing = []
 lista = []
+
 
 def cargo_art():
 		with open("lista de productos total.csv") as f:
@@ -186,14 +188,14 @@ class IngresosPage(BoxLayout):
 							size_hint=(.5, .3),
 							size_hint_y=None,
 							height=40,)"""
-				exec(f"lab_desc_art{i}= {var_lab_desc_art}")
-				exec(f"self.grid_tex_art.add_widget(lab_desc_art{i})")
+				exec(f"self.lab_desc_art{i}= {var_lab_desc_art}")
+				exec(f"self.grid_tex_art.add_widget(self.lab_desc_art{i})")
 
-				exec(f"text_cant_art{i}= TextInput(size_hint=(.2,.3))")
-				exec(f"self.grid_tex_art.add_widget(text_cant_art{i})")
+				exec(f"self.text_cant_art{i}= TextInput(size_hint=(.2,.3))")
+				exec(f"self.grid_tex_art.add_widget(self.text_cant_art{i})")
 
-				exec(f"text_precio_art{i}= TextInput(size_hint=(.2,.3))")
-				exec(f"self.grid_tex_art.add_widget(text_precio_art{i})")
+				exec(f"self.text_precio_art{i}= TextInput(size_hint=(.2,.3))")
+				exec(f"self.grid_tex_art.add_widget(self.text_precio_art{i})")
 
 				var_bot_art_ing = """Button(
 									text = "agregar", 
@@ -206,11 +208,46 @@ class IngresosPage(BoxLayout):
 				
 				
 	def agrego_art_ing(self, instance):
+		articulo_ing = exec(f"self.lab_desc_art{instance.ID}.text")
+		cantidad_ing = exec(f"self.text_cant_art{instance.ID}.text")
+		precio_ing = exec(f"self.text_precio_art{instance.ID}.text")
+		
+		ldic = locals()		
+		
+		item_ing = f"['cod({instance.ID})',{articulo_ing}, {cantidad_ing}, {precio_ing}]"
+
+		list_ing.append(item_ing)
+		
+		layout = GridLayout(cols = 1, spacing = 5) 
+	  
+		print(item_ing)
+		input()
+
+		for cada_item in item_ing:
+				
+			itemLabel = Label(text = cada_item,
+							size_hint = (1,1),
+							) 
+			closeButton = Button(text = "Actualizar Stock",
+								size_hint=(1,.5),
+								) 
+	  
+			layout.add_widget(itemLabel)
+	  
+			# Instantiate the modal popup and display 
+	
+		layout.add_widget(closeButton)        
+
+		self.popup = Popup(title ='UD. INGRESO', 
+					  content = layout, 
+					  size_hint =(None, None), size =(500, 500))   
+
+		self.popup.open()    
+  		# Attach close button press with popup.dismiss action 
+		closeButton.bind(on_press = self.actualizo_stock)
+			
+	def actualizo_stock(self, instance):
 		return
-
-
-
-
 
 class VentasPage(BoxLayout):
 
