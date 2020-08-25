@@ -15,9 +15,13 @@ from kivy.clock import Clock
 import csv
 
 list_desc = []
-list_ing = []
 lista = []
+lista_pop = []
 
+
+def cargo_lista_confirmacion(lista_muestro, lista_ing = []):
+	lista_ing.append(lista_muestro)
+	return lista_ing
 
 def cargo_art():
 		with open("lista de productos total.csv") as f:
@@ -152,7 +156,10 @@ class IngresosPage(BoxLayout):
 							#input_filter = "float",
 							write_tab = "False",
 							)
-			barra_titulos_ingreso = GridLayout(cols = 4)
+			barra_titulos_ingreso = GridLayout(cols = 4,
+												row_force_default=True, 
+												row_default_height=40,
+												)
 			
 			tit_desc = Label(text="Descripcion", size_hint=(.5, 1),)
 			tit_cant = Label(text="Cantidad", size_hint=(.2, 1),)
@@ -178,6 +185,8 @@ class IngresosPage(BoxLayout):
 	def armo_items_ing(self, instance, value):
 		self.grid_tex_art.clear_widgets()
 		
+		indice = 0
+		self.matrix_art = []
 		
 		for i in range(len(lista)):
 			if value.lower() in lista[i][1].lower() and value != "" and lista[i][5] == self.lab_prov.text:
@@ -188,48 +197,45 @@ class IngresosPage(BoxLayout):
 							size_hint=(.5, .3),
 							size_hint_y=None,
 							height=40,)"""
-				exec(f"self.lab_desc_art{i}= {var_lab_desc_art}")
-				exec(f"self.grid_tex_art.add_widget(self.lab_desc_art{i})")
+				
+				exec(f"self.lab_desc_art{indice}= {var_lab_desc_art}")
+				exec(f"self.grid_tex_art.add_widget(self.lab_desc_art{indice})")
 
-				exec(f"self.text_cant_art{i}= TextInput(size_hint=(.2,.3))")
-				exec(f"self.grid_tex_art.add_widget(self.text_cant_art{i})")
+				exec(f"self.text_cant_art{indice}= TextInput(size_hint=(.2,.3))")
+				exec(f"self.grid_tex_art.add_widget(self.text_cant_art{indice})")
 
-				exec(f"self.text_precio_art{i}= TextInput(size_hint=(.2,.3))")
-				exec(f"self.grid_tex_art.add_widget(self.text_precio_art{i})")
+				exec(f"self.text_precio_art{indice}= TextInput(size_hint=(.2,.3))")
+				exec(f"self.grid_tex_art.add_widget(self.text_precio_art{indice})")
 
 				var_bot_art_ing = """Button(
 									text = "agregar", 
 									size_hint=(.2,.3),
 											)"""
-				exec(f"bot_art_ing{str(i)} = {var_bot_art_ing}")
-				exec(f"bot_art_ing{str(i)}.ID = str(i)")
-				exec(f"self.grid_tex_art.add_widget(bot_art_ing{str(i)})")
-				exec(f"bot_art_ing{str(i)}.bind(on_press = self.agrego_art_ing)")
-				
-				
+				exec(f"bot_art_ing{indice} = {var_bot_art_ing}")
+				exec(f"bot_art_ing{indice}.ID = {indice}")
+				exec(f"self.grid_tex_art.add_widget(bot_art_ing{indice})")
+				exec(f"bot_art_ing{indice}.bind(on_press = self.agrego_art_ing)")
+				exec(f"self.matrix_art = cargo_lista_confirmacion([i,self.lab_desc_art{indice}.text, self.text_cant_art{indice}.text, self.text_precio_art{indice}.text],self.matrix_art)")		
+				indice = + 1
+
 	def agrego_art_ing(self, instance):
-		articulo_ing = exec(f"self.lab_desc_art{instance.ID}.text")
-		cantidad_ing = exec(f"self.text_cant_art{instance.ID}.text")
-		precio_ing = exec(f"self.text_precio_art{instance.ID}.text")
-		
-		ldic = locals()		
-		
-		item_ing = f"['cod({instance.ID})',{articulo_ing}, {cantidad_ing}, {precio_ing}]"
-
-		list_ing.append(item_ing)
-		
-		layout = GridLayout(cols = 1, spacing = 5) 
-	  
-		print(item_ing)
-		input()
-
-		for cada_item in item_ing:
 				
-			itemLabel = Label(text = cada_item,
-							size_hint = (1,1),
+		print(instance.ID)
+		ing_desc = self.matrix_art[int(instance.ID)][1]
+		ing_cant = self.matrix_art[int(instance.ID)][2]
+		ing_precio = self.matrix_art[int(instance.ID)][3]
+
+		lista_pop.append([ing_desc, ing_cant, ing_precio])
+
+		layout = GridLayout(cols = 1, spacing = 5) 
+
+		for cada_item in lista_pop:
+
+			itemLabel = Label(text = f"{cada_item} {ing_cant} {ing_precio}",
+							size_hint = (.2, 1),
 							) 
 			closeButton = Button(text = "Actualizar Stock",
-								size_hint=(1,.5),
+								size_hint=(.5,.5),
 								) 
 	  
 			layout.add_widget(itemLabel)
@@ -448,7 +454,9 @@ class VentasPage(BoxLayout):
 				
 				
 				
-				self.matrix_art.append([self.desc.text, self.precio.text, str(art_ind_stock)])
+				#self.matrix_art.append([self.desc.text, self.precio.text, str(art_ind_stock)])
+				self.matrix_art = cargo_lista_confirmacion([self.desc.text, self.precio.text, str(art_ind_stock)], self.matrix_art)
+				
 				exec(f"but_agregar{str(self.indice)}.bind(on_press=self.agregar_art)")
 
 				self.layout.add_widget(self.desc)
