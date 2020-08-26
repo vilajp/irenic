@@ -16,8 +16,10 @@ import csv
 
 list_desc = []
 lista = []
-lista_pop = []
 
+ingresos = False
+ventas = False
+informes = False
 
 def cargo_lista_confirmacion(lista_muestro, lista_ing = []):
 	lista_ing.append(lista_muestro)
@@ -41,11 +43,6 @@ class irenicApp(App):
 		self.start_page = StartPage()
 		screen = Screen(name='Start')
 		screen.add_widget(self.start_page)
-		self.screen_manager.add_widget(screen)
-
-		self.ingresos_page = IngresosPage()
-		screen = Screen(name='Ingresos')
-		screen.add_widget(self.ingresos_page)
 		self.screen_manager.add_widget(screen)
 
 
@@ -82,178 +79,18 @@ class StartPage(BoxLayout):
 	def elijo_pantalla(self, instance):
 
 		if instance.text == "INGRESOS":
-			irenic_app.screen_manager.current = 'Ingresos'
-		
+			ingresos = True
+			irenic_app.ventas_page.ingresos()
 		elif instance.text == "VENTAS":
-			irenic_app.screen_manager.current = 'Ventas'
+			ventas = True 
+			irenic_app.ventas_page.ventas()
 		else:
-			#PANTALLA INFORMES
-			return
+			informes = True
+
+		irenic_app.ventas_page.botones_abajo()
+		irenic_app.screen_manager.current = 'Ventas'
+
 			
-class IngresosPage(BoxLayout):
-	def __init__(self, **kwargs):
-		super().__init__(**kwargs)
-
-		self.orientation = "vertical"
-		self.spacing = 5
-
-		self.lab_ask = Label(text = "Seleccione Proveedor:", size_hint = (1,.2))
-
-		self.add_widget(self.lab_ask)
-
-		self.grid_botones = BoxLayout(size_hint = (1,.2))
-
-		with open("proveedores.csv") as prov:
-			lista_proveedor = csv.reader(prov, delimiter = ",")
-			indice = 1
-			for proveedor in lista_proveedor:
-				if proveedor[0]!= "NOMBRE":
-					exec(f"bot_prov{indice} = Button(text = proveedor[0],)")
-					exec(f"self.grid_botones.add_widget(bot_prov{indice})")
-					exec(f"bot_prov{indice}.bind(on_press= self.articulo_proveedor)")
-					exec(f"bot_prov{indice}.ID = indice")
-					indice += 1
-
-			exec(f"bot_prov{indice} = Button(text = 'Nuevo Proveedor',)")
-			exec(f"self.grid_botones.add_widget(bot_prov{indice})")
-			exec(f"bot_prov{indice}.bind(on_press= self.articulo_proveedor)")
-			exec(f"bot_prov{indice}.ID = indice")
-										
-		self.add_widget(self.grid_botones)
-
-		self.box_text_lab = BoxLayout (orientation = "vertical",
-										size_hint = (1, .2),
-										)
-		self.add_widget(self.box_text_lab)
-
-		
-		self.grid_tex_art = GridLayout (cols = 4,
-										spacing=5, 
-										size_hint_y=None,
-										)
-
-
-		self.grid_tex_art.bind(minimum_height=self.grid_tex_art.setter('height'))
-		
-		rotador = ScrollView(size_hint = (1,1),
-							 size=(Window.width, Window.height),)
-		rotador.add_widget(self.grid_tex_art)
-		self.add_widget(rotador)
-
-	def articulo_proveedor(self, instance):
-		#,ARTICULOS,MAYORISTA,MINORISTA,100,proveedor,margen
-		self.grid_botones.clear_widgets()
-		self.remove_widget(self.lab_ask)
-		if instance.text != "Nuevo Proveedor":
-			self.lab_prov = Label ( text = instance.text)
-			buscador_ing = TextInput(
-							text = "",
-							multiline=False, 
-							readonly=False, 
-							halign="left", 
-							font_size=30,
-							size_hint=(1, 1),
-							#input_filter = "float",
-							write_tab = "False",
-							)
-			barra_titulos_ingreso = GridLayout(cols = 4,
-												row_force_default=True, 
-												row_default_height=40,
-												)
-			
-			tit_desc = Label(text="Descripcion", size_hint=(.5, 1),)
-			tit_cant = Label(text="Cantidad", size_hint=(.2, 1),)
-			tit_precio = Label(text="Precio", size_hint=(.2, 1),)
-			tit_boton = Label(text="", size_hint=(.2,1))
-		
-			barra_titulos_ingreso.add_widget(tit_desc)
-			barra_titulos_ingreso.add_widget(tit_cant)
-			barra_titulos_ingreso.add_widget(tit_precio)
-			barra_titulos_ingreso.add_widget(tit_boton)
-		
-			self.grid_botones.add_widget(self.lab_prov)
-			self.box_text_lab.add_widget(buscador_ing)
-			self.box_text_lab.add_widget(barra_titulos_ingreso)
-
-			buscador_ing.bind(text = self.armo_items_ing)
-		else:
-			label_ing = Label(text = "Ingrese los datos del Nuevo Proveedor")
-			self.box_text_lab.add_widget(label_ing)
-			self.box_text_lab.add_widget(barra_titulos_ingreso)
-
-
-	def armo_items_ing(self, instance, value):
-		self.grid_tex_art.clear_widgets()
-		
-		indice = 0
-		self.matrix_art = []
-		
-		for i in range(len(lista)):
-			if value.lower() in lista[i][1].lower() and value != "" and lista[i][5] == self.lab_prov.text:
-				var_lab_desc_art="""Label(
-							text = lista[i][1][0:30], 
-							halign = "left", 
-							#size = self.texture_size,
-							size_hint=(.5, .3),
-							size_hint_y=None,
-							height=40,)"""
-				
-				exec(f"self.lab_desc_art{indice}= {var_lab_desc_art}")
-				exec(f"self.grid_tex_art.add_widget(self.lab_desc_art{indice})")
-
-				exec(f"self.text_cant_art{indice}= TextInput(size_hint=(.2,.3))")
-				exec(f"self.grid_tex_art.add_widget(self.text_cant_art{indice})")
-
-				exec(f"self.text_precio_art{indice}= TextInput(size_hint=(.2,.3))")
-				exec(f"self.grid_tex_art.add_widget(self.text_precio_art{indice})")
-
-				var_bot_art_ing = """Button(
-									text = "agregar", 
-									size_hint=(.2,.3),
-											)"""
-				exec(f"bot_art_ing{indice} = {var_bot_art_ing}")
-				exec(f"bot_art_ing{indice}.ID = {indice}")
-				exec(f"self.grid_tex_art.add_widget(bot_art_ing{indice})")
-				exec(f"bot_art_ing{indice}.bind(on_press = self.agrego_art_ing)")
-				exec(f"self.matrix_art = cargo_lista_confirmacion([i,self.lab_desc_art{indice}.text, self.text_cant_art{indice}.text, self.text_precio_art{indice}.text],self.matrix_art)")		
-				indice = + 1
-
-	def agrego_art_ing(self, instance):
-				
-		print(instance.ID)
-		ing_desc = self.matrix_art[int(instance.ID)][1]
-		ing_cant = self.matrix_art[int(instance.ID)][2]
-		ing_precio = self.matrix_art[int(instance.ID)][3]
-
-		lista_pop.append([ing_desc, ing_cant, ing_precio])
-
-		layout = GridLayout(cols = 1, spacing = 5) 
-
-		for cada_item in lista_pop:
-
-			itemLabel = Label(text = f"{cada_item} {ing_cant} {ing_precio}",
-							size_hint = (.2, 1),
-							) 
-			closeButton = Button(text = "Actualizar Stock",
-								size_hint=(.5,.5),
-								) 
-	  
-			layout.add_widget(itemLabel)
-	  
-			# Instantiate the modal popup and display 
-	
-		layout.add_widget(closeButton)        
-
-		self.popup = Popup(title ='UD. INGRESO', 
-					  content = layout, 
-					  size_hint =(None, None), size =(500, 500))   
-
-		self.popup.open()    
-  		# Attach close button press with popup.dismiss action 
-		closeButton.bind(on_press = self.actualizo_stock)
-			
-	def actualizo_stock(self, instance):
-		return
 
 class VentasPage(BoxLayout):
 
@@ -263,6 +100,28 @@ class VentasPage(BoxLayout):
 		self.orientation = "vertical"
 			
 		#AGREGO LOS WIDGETS QUE VOY A USAR MAS TARDE CUANDO HAGA LA LISTA
+	def botones_abajo(self):	
+		box_buttons = BoxLayout(size_hint = (1, .2))
+
+		but_vuelvo = Button(text = "Volver",
+								pos_hint={"center_x": 0.5, "center_y": 0.5},
+								#size_hint = (.3, .2),
+								)
+		but_carrito = Button(text = "Carrito",
+								pos_hint={"center_x": 0.5, "center_y": 0.5},
+								#size_hint = (.3, .2),
+								)
+
+		box_buttons.add_widget(but_vuelvo)
+		box_buttons.add_widget(but_carrito)
+		
+		self.add_widget(box_buttons)
+
+		but_vuelvo.bind(on_press = self.vuelvo_start)
+		but_carrito.bind(on_press = self.voy_carrito)
+
+	def ventas(self):
+		self.clear_widgets()
 		desc = Label(
 					halign = "left", 
 					#size = self.texture_size,
@@ -338,17 +197,6 @@ class VentasPage(BoxLayout):
 
 		self.buscador.bind(text = self.on_text)
 
-		box_buttons = BoxLayout(size_hint = (1, .2))
-
-		but_vuelvo = Button(text = "Volver",
-							pos_hint={"center_x": 0.5, "center_y": 0.5},
-							#size_hint = (.3, .2),
-							)
-		but_carrito = Button(text = "Carrito",
-							pos_hint={"center_x": 0.5, "center_y": 0.5},
-							#size_hint = (.3, .2),
-							)
-
 		self.add_widget(self.buscador)
 
 		
@@ -370,15 +218,95 @@ class VentasPage(BoxLayout):
 		rotador.add_widget(self.layout)
 		self.add_widget(rotador)
 
-		box_buttons.add_widget(but_vuelvo)
-		box_buttons.add_widget(but_carrito)
 		
-		self.add_widget(box_buttons)
+	def ingresos(self):
+		self.clear_widgets()
 
-		but_vuelvo.bind(on_press = self.vuelvo_start)
-		but_carrito.bind(on_press = self.voy_carrito)
+		self.lab_ask = Label(text = "Seleccione Proveedor:", size_hint = (1,.2))
+
+		self.add_widget(self.lab_ask)
+
+		self.grid_botones = BoxLayout(size_hint = (1,.2))
+
+		with open("proveedores.csv") as prov:
+			lista_proveedor = csv.reader(prov, delimiter = ",")
+			indice = 1
+			for proveedor in lista_proveedor:
+				if proveedor[0]!= "NOMBRE":
+					exec(f"bot_prov{indice} = Button(text = proveedor[0],)")
+					exec(f"self.grid_botones.add_widget(bot_prov{indice})")
+					exec(f"bot_prov{indice}.bind(on_press= self.articulo_proveedor)")
+					exec(f"bot_prov{indice}.ID = indice")
+					indice += 1
+
+			exec(f"bot_prov{indice} = Button(text = 'Nuevo Proveedor',)")
+			exec(f"self.grid_botones.add_widget(bot_prov{indice})")
+			exec(f"bot_prov{indice}.bind(on_press= self.articulo_proveedor)")
+			exec(f"bot_prov{indice}.ID = indice")
+										
+		self.add_widget(self.grid_botones)
+
+		self.box_text_lab = BoxLayout (orientation = "vertical",
+										size_hint = (1, .2),
+										)
+		self.add_widget(self.box_text_lab)
 
 		
+		self.grid_tex_art = GridLayout (cols = 4,
+										spacing=5, 
+										size_hint_y=None,
+										)
+
+
+		self.grid_tex_art.bind(minimum_height=self.grid_tex_art.setter('height'))
+		
+		rotador = ScrollView(size_hint = (1,1),
+							 size=(Window.width, Window.height),)
+		rotador.add_widget(self.grid_tex_art)
+		self.add_widget(rotador)
+
+	
+
+	def articulo_proveedor(self, instance):
+		#,ARTICULOS,MAYORISTA,MINORISTA,100,proveedor,margen
+		self.grid_botones.clear_widgets()
+		self.remove_widget(self.lab_ask)
+		if instance.text != "Nuevo Proveedor":
+			self.lab_prov = Label ( text = instance.text)
+			buscador_ing = TextInput(
+							text = "",
+							multiline=False, 
+							readonly=False, 
+							halign="left", 
+							font_size=30,
+							size_hint=(1, 1),
+							#input_filter = "float",
+							write_tab = "False",
+							)
+			barra_titulos_ingreso = GridLayout(cols = 4,
+												row_force_default=True, 
+												row_default_height=40,
+												)
+			
+			tit_desc = Label(text="Descripcion", size_hint=(.5, 1),)
+			tit_cant = Label(text="Cantidad", size_hint=(.2, 1),)
+			tit_precio = Label(text="Precio", size_hint=(.2, 1),)
+			tit_boton = Label(text="", size_hint=(.2,1))
+		
+			barra_titulos_ingreso.add_widget(tit_desc)
+			barra_titulos_ingreso.add_widget(tit_cant)
+			barra_titulos_ingreso.add_widget(tit_precio)
+			barra_titulos_ingreso.add_widget(tit_boton)
+		
+			self.grid_botones.add_widget(self.lab_prov)
+			self.box_text_lab.add_widget(buscador_ing)
+			self.box_text_lab.add_widget(barra_titulos_ingreso)
+
+			buscador_ing.bind(text = self.on_text)
+		else:
+			label_ing = Label(text = "Ingrese los datos del Nuevo Proveedor")
+			self.box_text_lab.add_widget(label_ing)
+			self.box_text_lab.add_widget(barra_titulos_ingreso)
 
 
 	
@@ -391,102 +319,147 @@ class VentasPage(BoxLayout):
 
 		
 	def on_text(self, instance, value):
-		self.layout.clear_widgets()
+		if ventas:	
+			self.layout.clear_widgets()
+			
+			self.indice = 0
+			self.matrix_art = []
+			
+			for articulo in lista:
+				if value.lower() in articulo[1].lower() and value != "" and articulo[1] != "ARTICULOS" and articulo[3] != "":
+					
+					art_ind_stock = lista.index(articulo)
+					self.desc = Label(text=articulo[1][0:30],
+								halign = "left", 
+								#size = self.texture_size,
+								size_hint=(.4, .3),
+								size_hint_y=None,
+								height=40,
+								#text_size = self.size,
+								)
+					self.precio = Label(text = articulo[3],
+								halign = "right", 
+								#size = self.texture_size,
+								size_hint=(.2, .3),
+								size_hint_y=None,
+								height=40,
+								#text_size = self.size,
+								)
+					self.stock = Label(text = articulo[4],
+								halign = "right", 
+								#size = self.texture_size,
+								size_hint=(.2, .3),
+								size_hint_y=None,
+								height=40,
+								 )
+					self.var_cant = f"self.cantidad{self.indice}"
+					asig_text = """TextInput(
+							multiline=False, 
+							readonly=False, 
+							halign="right", 
+							font_size=20,
+							size_hint=(.1, .3),
+							input_filter = "int",
+							write_tab = "False",
+							)"""
+					
+					exec("%s = %s" %(self.var_cant,asig_text))
+					"""self.cantidad = TextInput(
+							multiline=False, 
+							readonly=False, 
+							halign="right", 
+							font_size=20,
+							size_hint=(.1, .3),
+							input_filter = "float",
+							write_tab = "False",
+							)"""
+
+					var_but_agregar = """Button (text = "agregar",
+							size_hint = (.1, .3),
+											)"""
+
+					exec(f"but_agregar{str(self.indice)} = {var_but_agregar}") 
+					exec(f"but_agregar{str(self.indice)}.ID = {str(self.indice)}")
+					
+					
+					
+					#self.matrix_art.append([self.desc.text, self.precio.text, str(art_ind_stock)])
+					self.matrix_art = cargo_lista_confirmacion([self.desc.text, self.precio.text, str(art_ind_stock)], self.matrix_art)
+					
+					exec(f"but_agregar{str(self.indice)}.bind(on_press=self.agregar_art)")
+
+					self.layout.add_widget(self.desc)
+					self.layout.add_widget(self.precio)
+					self.layout.add_widget(self.stock)
+					exec("self.layout.add_widget(%s)" %(self.var_cant))
+					exec(f"self.layout.add_widget(but_agregar{str(self.indice)})")
+					self.indice +=1	
+				elif ingresos:
+					self.grid_tex_art.clear_widgets()
 		
-		self.indice = 0
-		self.matrix_art = []
-		
-		for articulo in lista:
-			if value.lower() in articulo[1].lower() and value != "" and articulo[1] != "ARTICULOS" and articulo[3] != "":
-				
-				art_ind_stock = lista.index(articulo)
-				self.desc = Label(text=articulo[1][0:30],
-							halign = "left", 
-							#size = self.texture_size,
-							size_hint=(.4, .3),
-							size_hint_y=None,
-							height=40,
-							#text_size = self.size,
-							)
-				self.precio = Label(text = articulo[3],
-							halign = "right", 
-							#size = self.texture_size,
-							size_hint=(.2, .3),
-							size_hint_y=None,
-							height=40,
-							#text_size = self.size,
-							)
-				self.stock = Label(text = articulo[4],
-							halign = "right", 
-							#size = self.texture_size,
-							size_hint=(.2, .3),
-							size_hint_y=None,
-							height=40,
-							 )
-				self.var_cant = f"self.cantidad{self.indice}"
-				asig_text = """TextInput(
-						multiline=False, 
-						readonly=False, 
-						halign="right", 
-						font_size=20,
-						size_hint=(.1, .3),
-						input_filter = "int",
-						write_tab = "False",
-						)"""
-				
-				exec("%s = %s" %(self.var_cant,asig_text))
-				"""self.cantidad = TextInput(
-						multiline=False, 
-						readonly=False, 
-						halign="right", 
-						font_size=20,
-						size_hint=(.1, .3),
-						input_filter = "float",
-						write_tab = "False",
-						)"""
+					indice = 0
+					self.matrix_art = []
+					
+					for i in range(len(lista)):
+						if value.lower() in lista[i][1].lower() and value != "" and lista[i][5] == self.lab_prov.text:
+							var_lab_desc_art="""Label(
+										text = lista[i][1][0:30], 
+										halign = "left", 
+										#size = self.texture_size,
+										size_hint=(.5, .3),
+										size_hint_y=None,
+										height=40,)"""
+							
+							exec(f"self.lab_desc_art{indice}= {var_lab_desc_art}")
+							exec(f"self.grid_tex_art.add_widget(self.lab_desc_art{indice})")
 
-				var_but_agregar = """Button (text = "agregar",
-						size_hint = (.1, .3),
-										)"""
+							exec(f"self.text_cant_art{indice}= TextInput(size_hint=(.2,.3))")
+							exec(f"self.grid_tex_art.add_widget(self.text_cant_art{indice})")
 
-				exec(f"but_agregar{str(self.indice)} = {var_but_agregar}") 
-				exec(f"but_agregar{str(self.indice)}.ID = {str(self.indice)}")
-				
-				
-				
-				#self.matrix_art.append([self.desc.text, self.precio.text, str(art_ind_stock)])
-				self.matrix_art = cargo_lista_confirmacion([self.desc.text, self.precio.text, str(art_ind_stock)], self.matrix_art)
-				
-				exec(f"but_agregar{str(self.indice)}.bind(on_press=self.agregar_art)")
+							exec(f"self.text_precio_art{indice}= TextInput(size_hint=(.2,.3))")
+							exec(f"self.grid_tex_art.add_widget(self.text_precio_art{indice})")
 
-				self.layout.add_widget(self.desc)
-				self.layout.add_widget(self.precio)
-				self.layout.add_widget(self.stock)
-				exec("self.layout.add_widget(%s)" %(self.var_cant))
-				exec(f"self.layout.add_widget(but_agregar{str(self.indice)})")
-				self.indice +=1	
+							var_bot_art_ing = """Button(
+												text = "agregar", 
+												size_hint=(.2,.3),
+														)"""
+							exec(f"bot_art_ing{indice} = {var_bot_art_ing}")
+							exec(f"bot_art_ing{indice}.ID = {indice}")
+							exec(f"self.grid_tex_art.add_widget(bot_art_ing{indice})")
+							exec(f"bot_art_ing{indice}.bind(on_press = self.agregar_art)")
+							
+							exec(f"self.matrix_art = cargo_lista_confirmacion([i,self.lab_desc_art{indice}.text, self.text_cant_art{indice}.text, self.text_precio_art{indice}.text],self.matrix_art)")		
+							indice += 1
 
 	def agregar_art(self, instance):
 		
-		
-		descripcion = self.matrix_art[int(instance.ID)][0]
-		precio_unit = self.matrix_art[int(instance.ID)][1]
-		codigo_art = self.matrix_art[int(instance.ID)][2]
-		var_cantidad = f"self.cantidad{instance.ID}.text"
-		ldic = locals()
-		
-		exec(f"cantidad = {var_cantidad}", globals(), ldic)
-		cantidad = ldic["cantidad"]
-
-		if cantidad!="" and int(cantidad)>0:
-
-			exec(f"subtotal = int(precio_unit) * int({var_cantidad})", globals(),ldic)
-			subtotal = ldic["subtotal"]
+		if ventas:
+			descripcion = self.matrix_art[int(instance.ID)][0]
+			precio_unit = self.matrix_art[int(instance.ID)][1]
+			codigo_art = self.matrix_art[int(instance.ID)][2]
+			var_cantidad = f"self.cantidad{instance.ID}.text"
+			ldic = locals()
 			
-			info = f"{codigo_art},{descripcion},{precio_unit},{cantidad},{subtotal}"
-			
-			irenic_app.carrito_page.update_info(info)
-			irenic_app.screen_manager.current = 'Carrito'
+			exec(f"cantidad = {var_cantidad}", globals(), ldic)
+			cantidad = ldic["cantidad"]
+
+			if cantidad!="" and int(cantidad)>0:
+
+				exec(f"subtotal = int(precio_unit) * int({var_cantidad})", globals(),ldic)
+				subtotal = ldic["subtotal"]
+				
+				info = f"{codigo_art},{descripcion},{precio_unit},{cantidad},{subtotal}"
+		elif ingresos:
+			if ing_cant != "" and ing_precio!= "":
+				ing_cod = self.matrix_art[int(instance.ID)][0]
+				ing_desc = self.matrix_art[int(instance.ID)][1]
+				ing_cant = self.matrix_art[int(instance.ID)][2]
+				ing_precio = self.matrix_art[int(instance.ID)][3]
+				info = f"cod({ing_cod}, {ing_desc}, {ing_cant}, {ing_precio}"	
+	
+
+		irenic_app.carrito_page.update_info(info)
+		irenic_app.screen_manager.current = 'Carrito'
 			
 		#Clock.schedule_once(self.vuelvo_ventas, 1)	
 	
@@ -529,13 +502,21 @@ class CarritoPage(BoxLayout):
 		self.grid_desc.add_widget(self.message)
 		
 
-		self.but_vuelvo = Button(text = "Seguir comprando",
+		texto_vuelvo, texto_termino = "",""
+		if ventas:
+			texto_vuelvo = "Seguir comprando"
+			texto_termino = "Pagar"
+		elif ingresos:
+			texto_vuelvo = "Seguir ingresando"
+			texto_termino = "Actualizar"
+
+		self.but_vuelvo = Button(text = f"{texto_vuelvo}",
 								pos_hint={"center_x": 0.5, "center_y": 0.5},
 								#size_hint = (.3, .2),
 								)
 		self.but_vuelvo.bind(on_press=irenic_app.ventas_page.vuelvo_ventas)	
 
-		self.but_pagar = Button(text = "Pagar",
+		self.but_pagar = Button(text = f"{texto_termino}",
 								pos_hint={"center_x": 0.5, "center_y": 0.5},
 								#size_hint = (.3, .2),
 								)
