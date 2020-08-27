@@ -17,9 +17,6 @@ import csv
 list_desc = []
 lista = []
 
-ingresos = False
-ventas = False
-informes = False
 
 def cargo_lista_confirmacion(lista_muestro, lista_ing = []):
 	lista_ing.append(lista_muestro)
@@ -167,6 +164,7 @@ class VentasPage(BoxLayout):
 							#input_filter = "float",
 							write_tab = "False",
 							)
+		self.buscador.ID="ventas"
 		
 		titulos = GridLayout(
 							cols = 5,
@@ -252,17 +250,17 @@ class VentasPage(BoxLayout):
 		self.add_widget(self.box_text_lab)
 
 		
-		self.grid_tex_art = GridLayout (cols = 4,
+		self.layout = GridLayout (cols = 4,
 										spacing=5, 
 										size_hint_y=None,
 										)
 
 
-		self.grid_tex_art.bind(minimum_height=self.grid_tex_art.setter('height'))
+		self.layout.bind(minimum_height=self.layout.setter('height'))
 		
 		rotador = ScrollView(size_hint = (1,1),
 							 size=(Window.width, Window.height),)
-		rotador.add_widget(self.grid_tex_art)
+		rotador.add_widget(self.layout)
 		self.add_widget(rotador)
 
 	
@@ -283,6 +281,7 @@ class VentasPage(BoxLayout):
 							#input_filter = "float",
 							write_tab = "False",
 							)
+			buscador_ing.ID = "ingresos"
 			barra_titulos_ingreso = GridLayout(cols = 4,
 												row_force_default=True, 
 												row_default_height=40,
@@ -319,147 +318,162 @@ class VentasPage(BoxLayout):
 
 		
 	def on_text(self, instance, value):
-		if ventas:	
-			self.layout.clear_widgets()
-			
-			self.indice = 0
-			self.matrix_art = []
-			
-			for articulo in lista:
-				if value.lower() in articulo[1].lower() and value != "" and articulo[1] != "ARTICULOS" and articulo[3] != "":
-					
-					art_ind_stock = lista.index(articulo)
-					self.desc = Label(text=articulo[1][0:30],
-								halign = "left", 
-								#size = self.texture_size,
-								size_hint=(.4, .3),
-								size_hint_y=None,
-								height=40,
-								#text_size = self.size,
-								)
-					self.precio = Label(text = articulo[3],
-								halign = "right", 
-								#size = self.texture_size,
-								size_hint=(.2, .3),
-								size_hint_y=None,
-								height=40,
-								#text_size = self.size,
-								)
-					self.stock = Label(text = articulo[4],
-								halign = "right", 
-								#size = self.texture_size,
-								size_hint=(.2, .3),
-								size_hint_y=None,
-								height=40,
-								 )
-					self.var_cant = f"self.cantidad{self.indice}"
-					asig_text = """TextInput(
-							multiline=False, 
-							readonly=False, 
-							halign="right", 
-							font_size=20,
-							size_hint=(.1, .3),
-							input_filter = "int",
-							write_tab = "False",
-							)"""
-					
-					exec("%s = %s" %(self.var_cant,asig_text))
-					"""self.cantidad = TextInput(
-							multiline=False, 
-							readonly=False, 
-							halign="right", 
-							font_size=20,
-							size_hint=(.1, .3),
-							input_filter = "float",
-							write_tab = "False",
-							)"""
-
-					var_but_agregar = """Button (text = "agregar",
-							size_hint = (.1, .3),
-											)"""
-
-					exec(f"but_agregar{str(self.indice)} = {var_but_agregar}") 
-					exec(f"but_agregar{str(self.indice)}.ID = {str(self.indice)}")
-					
-					
-					
-					#self.matrix_art.append([self.desc.text, self.precio.text, str(art_ind_stock)])
-					self.matrix_art = cargo_lista_confirmacion([self.desc.text, self.precio.text, str(art_ind_stock)], self.matrix_art)
-					
-					exec(f"but_agregar{str(self.indice)}.bind(on_press=self.agregar_art)")
-
-					self.layout.add_widget(self.desc)
-					self.layout.add_widget(self.precio)
-					self.layout.add_widget(self.stock)
-					exec("self.layout.add_widget(%s)" %(self.var_cant))
-					exec(f"self.layout.add_widget(but_agregar{str(self.indice)})")
-					self.indice +=1	
-				elif ingresos:
-					self.grid_tex_art.clear_widgets()
+		self.layout.clear_widgets()
+		self.indice = 0
+		self.matrix_art = []
+		for articulo in lista:
+			if value.lower() in articulo[1].lower() and value != "" and articulo[1] != "ARTICULOS" and articulo[3] != "":
+				exec(f"self.on_text_{instance.ID}(articulo)")
+				self.indice +=1			
+	
+	def on_text_ventas(self, articulo):
+		art_ind_stock = lista.index(articulo)
+		self.desc = Label(text=articulo[1][0:30],
+					halign = "left", 
+					#size = self.texture_size,
+					size_hint=(.4, .3),
+					size_hint_y=None,
+					height=40,
+					#text_size = self.size,
+					)
+		self.precio = Label(text = articulo[3],
+					halign = "right", 
+					#size = self.texture_size,
+					size_hint=(.2, .3),
+					size_hint_y=None,
+					height=40,
+					#text_size = self.size,
+					)
+		self.stock = Label(text = articulo[4],
+					halign = "right", 
+					#size = self.texture_size,
+					size_hint=(.2, .3),
+					size_hint_y=None,
+					height=40,
+					 )
+		self.var_cant = f"self.cantidad{self.indice}"
+		asig_text = """TextInput(
+				multiline=False, 
+				readonly=False, 
+				halign="right", 
+				font_size=20,
+				size_hint=(.1, .3),
+				input_filter = "int",
+				write_tab = "False",
+				)"""
 		
-					indice = 0
-					self.matrix_art = []
+		exec("%s = %s" %(self.var_cant,asig_text))
+		"""self.cantidad = TextInput(
+				multiline=False, 
+				readonly=False, 
+				halign="right", 
+				font_size=20,
+				size_hint=(.1, .3),
+				input_filter = "float",
+				write_tab = "False",
+				)"""
+
+		var_but_agregar = """Button (text = "agregar",
+				size_hint = (.1, .3),
+								)"""
+
+		exec(f"but_agregar{str(self.indice)} = {var_but_agregar}") 
+		
+		if len(str(self.indice))== 1:
+			cod_id = f"00{self.indice}"
+		elif len(str(self.indice)) == 2:
+			cod_id = f"0{self.indice}"
+		elif len(str(self.indice)) == 3:
+			cod_id = str(self.indice)
+		
+		exec(f"but_agregar{str(self.indice)}.ID = 'ventas  {cod_id}'")
+		
+		
+		
+		#self.matrix_art.append([self.desc.text, self.precio.text, str(art_ind_stock)])
+		self.matrix_art = cargo_lista_confirmacion([self.desc.text, self.precio.text, str(art_ind_stock)], self.matrix_art)
+		
+		exec(f"but_agregar{str(self.indice)}.bind(on_press=self.agregar_art)")
+
+		self.layout.add_widget(self.desc)
+		self.layout.add_widget(self.precio)
+		self.layout.add_widget(self.stock)
+		exec("self.layout.add_widget(%s)" %(self.var_cant))
+		exec(f"self.layout.add_widget(but_agregar{str(self.indice)})")
 					
-					for i in range(len(lista)):
-						if value.lower() in lista[i][1].lower() and value != "" and lista[i][5] == self.lab_prov.text:
-							var_lab_desc_art="""Label(
-										text = lista[i][1][0:30], 
-										halign = "left", 
-										#size = self.texture_size,
-										size_hint=(.5, .3),
-										size_hint_y=None,
-										height=40,)"""
-							
-							exec(f"self.lab_desc_art{indice}= {var_lab_desc_art}")
-							exec(f"self.grid_tex_art.add_widget(self.lab_desc_art{indice})")
+	def on_text_ingresos(self, articulo):
+		var_lab_desc_art="""Label(
+					text = lista[lista.index(articulo)][1][0:30], 
+					halign = "left", 
+					#size = self.texture_size,
+					size_hint=(.5, .3),
+					size_hint_y=None,
+					height=40,)"""
+		
+		exec(f"self.lab_desc_art{self.indice}= {var_lab_desc_art}")
+		exec(f"self.layout.add_widget(self.lab_desc_art{self.indice})")
 
-							exec(f"self.text_cant_art{indice}= TextInput(size_hint=(.2,.3))")
-							exec(f"self.grid_tex_art.add_widget(self.text_cant_art{indice})")
+		exec(f"self.text_cant_art{self.indice}= TextInput(size_hint=(.2,.3))")
+		exec(f"self.layout.add_widget(self.text_cant_art{self.indice})")
 
-							exec(f"self.text_precio_art{indice}= TextInput(size_hint=(.2,.3))")
-							exec(f"self.grid_tex_art.add_widget(self.text_precio_art{indice})")
+		exec(f"self.text_precio_art{self.indice}= TextInput(size_hint=(.2,.3))")
+		exec(f"self.layout.add_widget(self.text_precio_art{self.indice})")
 
-							var_bot_art_ing = """Button(
-												text = "agregar", 
-												size_hint=(.2,.3),
-														)"""
-							exec(f"bot_art_ing{indice} = {var_bot_art_ing}")
-							exec(f"bot_art_ing{indice}.ID = {indice}")
-							exec(f"self.grid_tex_art.add_widget(bot_art_ing{indice})")
-							exec(f"bot_art_ing{indice}.bind(on_press = self.agregar_art)")
-							
-							exec(f"self.matrix_art = cargo_lista_confirmacion([i,self.lab_desc_art{indice}.text, self.text_cant_art{indice}.text, self.text_precio_art{indice}.text],self.matrix_art)")		
-							indice += 1
+		var_bot_art_ing = """Button(
+							text = "agregar", 
+							size_hint=(.2,.3),
+									)"""
+		exec(f"bot_art_ing{self.indice} = {var_bot_art_ing}")
+		if len(str(self.indice))== 1:
+			cod_id = f"00{self.indice}"
+		elif len(str(self.indice)) == 2:
+			cod_id = f"0{self.indice}"
+		elif len(str(self.indice)) == 3:
+			cod_id = str(self.indice)
+		exec(f"bot_art_ing{self.indice}.ID = 'ingresos{cod_id}'")
+		exec(f"self.layout.add_widget(bot_art_ing{self.indice})")
+		exec(f"bot_art_ing{self.indice}.bind(on_press = self.agregar_art)")
+		
+		exec(f"self.matrix_art = cargo_lista_confirmacion([lista.index(articulo),self.lab_desc_art{self.indice}.text, self.text_cant_art{self.indice}.text, self.text_precio_art{self.indice}.text],self.matrix_art)")		
+		
 
 	def agregar_art(self, instance):
-		
-		if ventas:
-			descripcion = self.matrix_art[int(instance.ID)][0]
-			precio_unit = self.matrix_art[int(instance.ID)][1]
-			codigo_art = self.matrix_art[int(instance.ID)][2]
-			var_cantidad = f"self.cantidad{instance.ID}.text"
-			ldic = locals()
+
+		info = exec(f"self.agregar_art_{instance.ID[0:8].strip()}(instance)")
+		if info:
+			irenic_app.carrito_page.update_info(info)
+			irenic_app.screen_manager.current = 'Carrito'
 			
-			exec(f"cantidad = {var_cantidad}", globals(), ldic)
-			cantidad = ldic["cantidad"]
-
-			if cantidad!="" and int(cantidad)>0:
-
-				exec(f"subtotal = int(precio_unit) * int({var_cantidad})", globals(),ldic)
-				subtotal = ldic["subtotal"]
-				
-				info = f"{codigo_art},{descripcion},{precio_unit},{cantidad},{subtotal}"
-		elif ingresos:
-			if ing_cant != "" and ing_precio!= "":
-				ing_cod = self.matrix_art[int(instance.ID)][0]
-				ing_desc = self.matrix_art[int(instance.ID)][1]
-				ing_cant = self.matrix_art[int(instance.ID)][2]
-				ing_precio = self.matrix_art[int(instance.ID)][3]
-				info = f"cod({ing_cod}, {ing_desc}, {ing_cant}, {ing_precio}"	
 	
+	def agregar_art_ventas(self, instance):	
+		descripcion = self.matrix_art[int(instance.ID[-3:])][0]
+		precio_unit = self.matrix_art[int(instance.ID[-3:])][1]
+		codigo_art = self.matrix_art[int(instance.ID[-3:])][2]
+		var_cantidad = f"self.cantidad{instance.ID[-3:]}.text"
+		ldic = locals()
+		
+		exec(f"cantidad = {var_cantidad}", globals(), ldic)
+		cantidad = ldic["cantidad"]
+		info = ""
+		if cantidad!="" and int(cantidad)>0:
 
-		irenic_app.carrito_page.update_info(info)
-		irenic_app.screen_manager.current = 'Carrito'
+			exec(f"subtotal = int(precio_unit) * int({var_cantidad})", globals(),ldic)
+			subtotal = ldic["subtotal"]
+			
+			info = f"'ventas',{codigo_art},{descripcion},{precio_unit},{cantidad},{subtotal}"
+		return info
+
+	def agregar_art_ingresos(self, instance):
+
+		ing_cod = self.matrix_art[int(instance.ID[-3:])][0]
+		ing_desc = self.matrix_art[int(instance.ID[-3:])][1]
+		ing_cant = self.matrix_art[int(instance.ID[-3:])][2]
+		ing_precio = self.matrix_art[int(instance.ID[-3:])][3]
+		info = ""
+		if ing_cant != "" and ing_precio!= "":
+			info = f"'ingresos',{ing_cod},{ing_desc},{ing_cant},{ing_precio}"	
+		return info
+
 			
 		#Clock.schedule_once(self.vuelvo_ventas, 1)	
 	
@@ -501,26 +515,22 @@ class CarritoPage(BoxLayout):
 		
 		self.grid_desc.add_widget(self.message)
 		
+		but_vuelvo = Button(text = "Vuelvo",
+							pos_hint={"center_x": 0.5, "center_y": 0.5},
+							#size_hint = (.3, .2),
+							)
+		but_pagar = Button(text = "Termino",
+							pos_hint={"center_x": 0.5, "center_y": 0.5},
+							#size_hint = (.3, .2),
+							)
+			
 
-		texto_vuelvo, texto_termino = "",""
-		if ventas:
-			texto_vuelvo = "Seguir comprando"
-			texto_termino = "Pagar"
-		elif ingresos:
-			texto_vuelvo = "Seguir ingresando"
-			texto_termino = "Actualizar"
+		but_vuelvo.bind(on_press=irenic_app.ventas_page.vuelvo_ventas)	
+		but_pagar.bind(on_press = self.pido_confirmacion)
 
-		self.but_vuelvo = Button(text = f"{texto_vuelvo}",
-								pos_hint={"center_x": 0.5, "center_y": 0.5},
-								#size_hint = (.3, .2),
-								)
-		self.but_vuelvo.bind(on_press=irenic_app.ventas_page.vuelvo_ventas)	
-
-		self.but_pagar = Button(text = f"{texto_termino}",
-								pos_hint={"center_x": 0.5, "center_y": 0.5},
-								#size_hint = (.3, .2),
-								)
-		self.but_pagar.bind(on_press = self.pido_confirmacion)
+		self.box_buttons.add_widget(but_vuelvo)
+		self.box_buttons.add_widget(but_pagar)
+		
 		# By default every widget returns it's side as [100, 100], it gets finally resized,
 		# but we have to listen for size change to get a new one
 		# more: https://github.com/kivy/kivy/issues/1044
@@ -529,8 +539,6 @@ class CarritoPage(BoxLayout):
 
 		# Add text widget to the layout
 		self.add_widget(self.grid_desc)
-		self.box_buttons.add_widget(self.but_vuelvo)
-		self.box_buttons.add_widget(self.but_pagar)
 		self.add_widget(self.box_buttons)
 		
 
@@ -569,12 +577,11 @@ class CarritoPage(BoxLayout):
 
 
 	def update_info(self, message):
-		
 
-		if len(list_desc)>0:
+		if len(list_desc) > 0:
 
 			for i in range(len(list_desc)):
-				if list_desc[i].split(",")[0:-2] == message.split(",")[0:-2]:
+				if list_desc[i].split(",")[1][0:-2] == message.split(",")[1][0:-2]:
 					list_desc[i] = message
 					agrego = False
 					break
@@ -585,10 +592,12 @@ class CarritoPage(BoxLayout):
 
 		if agrego:
 			list_desc.append(message)
-					
-		
+
 		self.armo_items()
 		
+
+
+
 	def armo_items(self, suma = 0):
 		self.grid_desc.clear_widgets()
 		self.lab_total.text = str(suma)
