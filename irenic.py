@@ -438,29 +438,31 @@ class VentasPage(BoxLayout):
 		
 
 	def agregar_art(self, instance):
-
-		info = exec(f"self.agregar_art_{instance.ID[0:8].strip()}(instance)")
+		ldic = locals()	
+		exec(f"info = self.agregar_art_{instance.ID[0:8].strip()}(instance)", globals(), ldic)
+		info = ldic["info"]
+		
 		if info:
 			irenic_app.carrito_page.update_info(info)
 			irenic_app.screen_manager.current = 'Carrito'
 			
-	
+
 	def agregar_art_ventas(self, instance):	
 		descripcion = self.matrix_art[int(instance.ID[-3:])][0]
 		precio_unit = self.matrix_art[int(instance.ID[-3:])][1]
 		codigo_art = self.matrix_art[int(instance.ID[-3:])][2]
-		var_cantidad = f"self.cantidad{instance.ID[-3:]}.text"
+		var_cantidad = f"self.cantidad{int(instance.ID[-3:])}.text"
 		ldic = locals()
 		
 		exec(f"cantidad = {var_cantidad}", globals(), ldic)
 		cantidad = ldic["cantidad"]
 		info = ""
 		if cantidad!="" and int(cantidad)>0:
-
 			exec(f"subtotal = int(precio_unit) * int({var_cantidad})", globals(),ldic)
 			subtotal = ldic["subtotal"]
 			
-			info = f"'ventas',{codigo_art},{descripcion},{precio_unit},{cantidad},{subtotal}"
+			exec(f"info = '{instance.ID[0:8].strip()},{codigo_art},#{descripcion},{precio_unit},{cantidad},{subtotal}'")
+			info = ldic["info"]
 		return info
 
 	def agregar_art_ingresos(self, instance):
@@ -470,8 +472,10 @@ class VentasPage(BoxLayout):
 		ing_cant = self.matrix_art[int(instance.ID[-3:])][2]
 		ing_precio = self.matrix_art[int(instance.ID[-3:])][3]
 		info = ""
+		ldic = locals()
 		if ing_cant != "" and ing_precio!= "":
-			info = f"'ingresos',{ing_cod},{ing_desc},{ing_cant},{ing_precio}"	
+			exec(f"info = {instance.ID[0:8].strip()},#{ing_cod},{ing_desc},{ing_cant},{ing_precio}", globals(), ldic)	
+			info = ldic["info"]
 		return info
 
 			
@@ -581,7 +585,7 @@ class CarritoPage(BoxLayout):
 		if len(list_desc) > 0:
 
 			for i in range(len(list_desc)):
-				if list_desc[i].split(",")[1][0:-2] == message.split(",")[1][0:-2]:
+				if list_desc[i].split(",")[2][0:-2] == message.split(",")[2][0:-2]:
 					list_desc[i] = message
 					agrego = False
 					break
@@ -612,7 +616,7 @@ class CarritoPage(BoxLayout):
 			total = msg.split(",")
 			
 			var_cada_desc = f"self.cada_desc{str(list_desc.index(msg))}"
-			var_lab = """Label(text=msg.replace(",", " ")[2:],
+			var_lab = """Label(text=msg.replace(",", " ")[msg.index('#')+1:],
 							size_hint = (1,.2),
 								)"""
 			exec(f"{var_cada_desc} = {var_lab}")
