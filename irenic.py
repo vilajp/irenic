@@ -62,7 +62,7 @@ class StartPage(BoxLayout):
 		super().__init__(**kwargs)
 
 		#CARGO LISTA DE ARTICULOS
-		cargo_art()
+		
 
 		self.orientation = "vertical"
 		lista_botones = ["INGRESOS", "VENTAS", "INFORMES"]
@@ -119,6 +119,8 @@ class VentasPage(BoxLayout):
 
 	def ventas(self):
 		self.clear_widgets()
+		cargo_art()
+
 		desc = Label(
 					halign = "left", 
 					#size = self.texture_size,
@@ -218,6 +220,8 @@ class VentasPage(BoxLayout):
 
 		
 	def ingresos(self):
+		cargo_art()
+
 		self.clear_widgets()
 
 		self.lab_ask = Label(text = "Seleccione Proveedor:", size_hint = (1,.2))
@@ -271,7 +275,7 @@ class VentasPage(BoxLayout):
 		self.remove_widget(self.lab_ask)
 		if instance.text != "Nuevo Proveedor":
 			self.lab_prov = Label ( text = instance.text)
-			buscador_ing = TextInput(
+			self.buscador = TextInput(
 							text = "",
 							multiline=False, 
 							readonly=False, 
@@ -281,7 +285,7 @@ class VentasPage(BoxLayout):
 							#input_filter = "float",
 							write_tab = "False",
 							)
-			buscador_ing.ID = "ingresos"
+			self.buscador.ID = "ingresos"
 			barra_titulos_ingreso = GridLayout(cols = 4,
 												row_force_default=True, 
 												row_default_height=40,
@@ -298,10 +302,10 @@ class VentasPage(BoxLayout):
 			barra_titulos_ingreso.add_widget(tit_boton)
 		
 			self.grid_botones.add_widget(self.lab_prov)
-			self.box_text_lab.add_widget(buscador_ing)
+			self.box_text_lab.add_widget(self.buscador)
 			self.box_text_lab.add_widget(barra_titulos_ingreso)
 
-			buscador_ing.bind(text = self.on_text)
+			self.buscador.bind(text = self.on_text)
 		else:
 			label_ing = Label(text = "Ingrese los datos del Nuevo Proveedor")
 			self.box_text_lab.add_widget(label_ing)
@@ -469,12 +473,18 @@ class VentasPage(BoxLayout):
 
 		ing_cod = self.matrix_art[int(instance.ID[-3:])][0]
 		ing_desc = self.matrix_art[int(instance.ID[-3:])][1]
-		ing_cant = self.matrix_art[int(instance.ID[-3:])][2]
-		ing_precio = self.matrix_art[int(instance.ID[-3:])][3]
-		info = ""
+		
 		ldic = locals()
+		exec(f"ing_cant = self.text_cant_art{int(instance.ID[-3:])}.text", globals(), ldic)
+		ing_cant = ldic["ing_cant"]
+		
+		exec(f"ing_precio = self.text_precio_art{int(instance.ID[-3:])}.text")
+		ing_precio = ldic["ing_precio"]
+
+		info = ""
+		
 		if ing_cant != "" and ing_precio!= "":
-			exec(f"info = {instance.ID[0:8].strip()},#{ing_cod},{ing_desc},{ing_cant},{ing_precio}", globals(), ldic)	
+			exec(f"info = '{instance.ID[0:8].strip()},{ing_cod},#{ing_desc},{ing_cant},{ing_precio}'")	
 			info = ldic["info"]
 		return info
 
@@ -553,7 +563,7 @@ class CarritoPage(BoxLayout):
 		if self.lab_total.text != "0":
 			layout = GridLayout(cols = 1, padding = 10) 
 	  
-			askLabel = Label(text = "Confirma compra por:",
+			askLabel = Label(text = "Confirma?:",
 							size_hint = (1,.5),
 							) 
 			totalLabel = Label(text = self.lab_total.text,
@@ -561,7 +571,7 @@ class CarritoPage(BoxLayout):
 								font_size = 55,
 								color = [0,1,0,1],
 								)
-			closeButton = Button(text = "Pagar",
+			closeButton = Button(text = "OK",
 								size_hint=(1,.5),
 								) 
 	  
@@ -630,7 +640,11 @@ class CarritoPage(BoxLayout):
 			exec(f"but_elimino{str(list_desc.index(msg))}.bind(on_press= self.elimino_item)")
 		
 			exec(f"but_elimino{str(list_desc.index(msg))}.ID = {str(list_desc.index(msg))}")
-			suma += int(total[len(total)-1])
+			if total[0].strip() == "ventas":
+				suma += int(total[len(total)-1])
+			elif total[0].strip() == "ingresos":
+				suma += 1
+			
 			self.lab_total.text = str(suma)
 
 		#self.message.text = message
@@ -649,19 +663,32 @@ class CarritoPage(BoxLayout):
 		carrito_page.grid_desc.message.text_size = (carrito_page.grid_desc.message.width * 0.9, None)
 								
 	def realizo_pago(self, instance):
-		with open("lista venta productos diaria.csv" , mode = "a") as v:
-			venta = csv.writer(v, delimiter = "," , lineterminator='\n')
-			for item in list_desc:
-				now = datetime.now()
-				linea = f"{now.date()},{now.time()},{item}"
-				venta.writerow(linea.split(','))
-				indice = int(item.split(",")[0])
-				lista[indice][4] = str(int(lista[indice][4])-int(item.split(",")[-2]))
-				
+		if list_desc[0].split(",")[0]=="ventas":
+			with open("lista venta productos diaria.csv" , mode = "a") as v:
+				venta = csv.writer(v, delimiter = "," , lineterminator='\n')
+				for item in list_desc:
+					now = datetime.now()
+					linea = f"{now.date()},{now.time()},{item}"
+					venta.writerow(linea.split(','))
+					indice = int(item.split(",")[1])
+					lista[indice][4] = str(int(lista[indice][4])-int(item.split(",")[-2]))
+					
+		elif list_desc[0].split(",")[0]=="ingresos":
+			with open("lista ingresos productos diaria.csv" , mode = "a") as v:
+				ingresos = csv.writer(v, delimiter = "," , lineterminator='\n')
+				for item in list_desc:
+					now = datetime.now()
+					linea = f"{now.date()},{now.time()},{item}"
+					ingresos.writerow(linea.split(','))
+					indice = int(item.split(",")[1])
+					lista[indice][4] = str(int(lista[indice][4])+int(item.split(",")[-2]))
+			
+		
 		with open("lista de productos total.csv" , mode = "w") as f:
 			articulos = csv.writer(f, delimiter = "," , lineterminator='\n')
 			for articulo in lista:
 				articulos.writerow(articulo)
+		
 		list_desc[:] = []
 		self.armo_items()
 		irenic_app.ventas_page.layout.clear_widgets()
