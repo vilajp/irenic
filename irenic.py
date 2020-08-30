@@ -16,6 +16,7 @@ import csv
 
 list_desc = []
 lista = []
+proveedores = []
 
 
 def cargo_lista_confirmacion(lista_muestro, lista_ing = []):
@@ -100,7 +101,7 @@ class VentasPage(BoxLayout):
 	def botones_abajo(self):	
 		box_buttons = BoxLayout(size_hint = (1, .2))
 
-		but_vuelvo = Button(text = "Volver",
+		self.but_vuelvo = Button(text = "Volver",
 								pos_hint={"center_x": 0.5, "center_y": 0.5},
 								#size_hint = (.3, .2),
 								)
@@ -109,12 +110,12 @@ class VentasPage(BoxLayout):
 								#size_hint = (.3, .2),
 								)
 
-		box_buttons.add_widget(but_vuelvo)
+		box_buttons.add_widget(self.but_vuelvo)
 		box_buttons.add_widget(but_carrito)
 		
 		self.add_widget(box_buttons)
 
-		but_vuelvo.bind(on_press = self.vuelvo_start)
+		self.but_vuelvo.bind(on_press = self.vuelvo_start)
 		but_carrito.bind(on_press = self.voy_carrito)
 
 	def ventas(self):
@@ -234,6 +235,7 @@ class VentasPage(BoxLayout):
 			lista_proveedor = csv.reader(prov, delimiter = ",")
 			indice = 1
 			for proveedor in lista_proveedor:
+				proveedores.append(proveedor)
 				if proveedor[0]!= "NOMBRE":
 					exec(f"bot_prov{indice} = Button(text = proveedor[0],)")
 					exec(f"self.grid_botones.add_widget(bot_prov{indice})")
@@ -307,11 +309,119 @@ class VentasPage(BoxLayout):
 
 			self.buscador.bind(text = self.on_text)
 		else:
-			label_ing = Label(text = "Ingrese los datos del Nuevo Proveedor")
-			self.box_text_lab.add_widget(label_ing)
-			self.box_text_lab.add_widget(barra_titulos_ingreso)
+			self.nuevo_proveedor()
+	
+	def nuevo_proveedor(self):
+		#NOMBRE,DIRECCION,LOCALIDAD,TELEFONO,WHATSAPP,CONTACTO1,CONTACTO2
+
+		self.box_text_lab.clear_widgets()
+		self.layout.clear_widgets()
+		self.layout.cols = 2
+		self.layout.size_hint_y = 1
 
 
+		label_ing = Label(text = "Ingrese los datos del Nuevo Proveedor")
+		
+		lab_nombre = Label(text= "Nombre")
+		self.text_nombre = TextInput(text = "",
+							multiline=False, 
+							readonly=False, 
+							halign="left",
+							size_hint=(1, .2),
+							#input_filter = "float",
+							write_tab = "False",
+								)
+		self.layout.add_widget(lab_nombre)
+		self.layout.add_widget(self.text_nombre)
+		
+		lab_direccion = Label(text="Direccion")
+		self.text_direccion = TextInput(text = "",
+							multiline=False, 
+							readonly=False, 
+							halign="left",
+							size_hint=(1, .2),
+							#input_filter = "float",
+							write_tab = "False",
+									)
+		self.layout.add_widget(lab_direccion)
+		self.layout.add_widget(self.text_direccion)
+		
+		lab_localidad = Label(text="Localidad")
+		self.text_localidad = TextInput(text = "",
+							multiline=False, 
+							readonly=False, 
+							halign="left",
+							size_hint=(1, .2),
+							#input_filter = "float",
+							write_tab = "False",
+								)
+		self.layout.add_widget(lab_localidad)
+		self.layout.add_widget(self.text_localidad)
+		
+		lab_telefono = Label(text="Telefono")
+		self.text_telefono = TextInput(text = "",
+							multiline=False, 
+							readonly=False, 
+							halign="left",
+							size_hint=(1, .2),
+							#input_filter = "float",
+							write_tab = "False",
+								)
+		self.layout.add_widget(lab_telefono)
+		self.layout.add_widget(self.text_telefono)
+		
+		lab_whatsapp = Label(text="Whatsapp")
+		self.text_whatsapp = TextInput(text = "",
+							multiline=False, 
+							readonly=False, 
+							halign="left",
+							size_hint=(1, .2),
+							#input_filter = "float",
+							write_tab = "False",
+								)
+		self.layout.add_widget(lab_whatsapp)
+		self.layout.add_widget(self.text_whatsapp)
+		
+		lab_contacto = Label(text="Nombre de Contacto")
+		self.text_contacto = TextInput(text = "",
+							multiline=False, 
+							readonly=False, 
+							halign="left",
+							size_hint=(1, .2),
+							#input_filter = "float",
+							write_tab = "False",
+								)
+		self.layout.add_widget(lab_contacto)
+		self.layout.add_widget(self.text_contacto)
+		
+		lab_contacto2 = Label(text="Nombre de Contacto 2")
+		self.text_contacto2 = TextInput(text = "",
+							multiline=False, 
+							readonly=False, 
+							halign="left",
+							size_hint=(1, .2),
+							#input_filter = "float",
+							write_tab = "False",
+								)
+		self.layout.add_widget(lab_contacto2)
+		self.layout.add_widget(self.text_contacto2)
+		
+		bot_guardar_prov = Button(text="Guardar")
+		bot_guardar_prov.ID = "proveedor"
+		bot_guardar_prov.bind(on_press=self.guardo_proveedor)
+		
+		self.grid_botones.add_widget(label_ing)
+		
+		self.layout.add_widget(bot_guardar_prov)
+
+				
+	def guardo_proveedor(self, instance):
+		self.registro_prov = f"{self.text_nombre.text},{self.text_direccion.text},{self.text_localidad.text},{self.text_telefono.text},{self.text_whatsapp.text},{self.text_contacto.text},{self.text_contacto2.text}"
+		proveedores.append(self.registro_prov.split(","))
+		with open("proveedores.csv", mode = "w") as prov:
+			lista_proveedor = csv.writer(prov, delimiter = ",", lineterminator='\n')
+			for proveedor in proveedores:		
+				lista_proveedor.writerow(proveedor)
 	
 	def voy_carrito(self,instance):
 		irenic_app.carrito_page.armo_items()
