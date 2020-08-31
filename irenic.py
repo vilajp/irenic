@@ -64,6 +64,7 @@ class StartPage(BoxLayout):
 
 		#CARGO LISTA DE ARTICULOS
 		
+		cargo_art()
 
 		self.orientation = "vertical"
 		lista_botones = ["INGRESOS", "VENTAS", "INFORMES"]
@@ -77,10 +78,8 @@ class StartPage(BoxLayout):
 	def elijo_pantalla(self, instance):
 
 		if instance.text == "INGRESOS":
-			ingresos = True
 			irenic_app.ventas_page.ingresos()
 		elif instance.text == "VENTAS":
-			ventas = True 
 			irenic_app.ventas_page.ventas()
 		else:
 			informes = True
@@ -120,7 +119,6 @@ class VentasPage(BoxLayout):
 
 	def ventas(self):
 		self.clear_widgets()
-		cargo_art()
 
 		desc = Label(
 					halign = "left", 
@@ -221,7 +219,6 @@ class VentasPage(BoxLayout):
 
 		
 	def ingresos(self):
-		cargo_art()
 
 		self.clear_widgets()
 
@@ -364,7 +361,7 @@ class VentasPage(BoxLayout):
 							readonly=False, 
 							halign="left",
 							size_hint=(1, .2),
-							#input_filter = "float",
+							input_filter = "float",
 							write_tab = "False",
 								)
 		self.layout.add_widget(lab_telefono)
@@ -376,7 +373,7 @@ class VentasPage(BoxLayout):
 							readonly=False, 
 							halign="left",
 							size_hint=(1, .2),
-							#input_filter = "float",
+							input_filter = "float",
 							write_tab = "False",
 								)
 		self.layout.add_widget(lab_whatsapp)
@@ -416,12 +413,16 @@ class VentasPage(BoxLayout):
 
 				
 	def guardo_proveedor(self, instance):
-		self.registro_prov = f"{self.text_nombre.text},{self.text_direccion.text},{self.text_localidad.text},{self.text_telefono.text},{self.text_whatsapp.text},{self.text_contacto.text},{self.text_contacto2.text}"
+		self.registro_prov = f"{self.text_nombre.text.upper()},{self.text_direccion.text.upper()},{self.text_localidad.text.upper()},{self.text_telefono.text},{self.text_whatsapp.text},{self.text_contacto.text.upper()},{self.text_contacto2.text.upper()}"
 		proveedores.append(self.registro_prov.split(","))
 		with open("proveedores.csv", mode = "w") as prov:
 			lista_proveedor = csv.writer(prov, delimiter = ",", lineterminator='\n')
 			for proveedor in proveedores:		
 				lista_proveedor.writerow(proveedor)
+
+		irenic_app.ventas_page.ingresos()
+		irenic_app.ventas_page.botones_abajo()
+		
 	
 	def voy_carrito(self,instance):
 		irenic_app.carrito_page.armo_items()
@@ -436,9 +437,13 @@ class VentasPage(BoxLayout):
 		self.indice = 0
 		self.matrix_art = []
 		for articulo in lista:
-			if value.lower() in articulo[1].lower() and value != "" and articulo[1] != "ARTICULOS" and articulo[3] != "":
-				exec(f"self.on_text_{instance.ID}(articulo)")
-				self.indice +=1			
+			if instance.ID == "ingresos":
+				if value.lower() in articulo[1].lower() and value != "" and articulo[1] != "ARTICULOS" and articulo[3] != "" and articulo[5]==self.lab_prov.text:
+					self.on_text_ingresos(articulo)
+			elif instance.ID == "ventas":		
+				if value.lower() in articulo[1].lower() and value != "" and articulo[1] != "ARTICULOS" and articulo[3] != "":
+					self.on_text_ventas(articulo)
+			self.indice +=1			
 	
 	def on_text_ventas(self, articulo):
 		art_ind_stock = lista.index(articulo)
@@ -548,8 +553,8 @@ class VentasPage(BoxLayout):
 		exec(f"self.layout.add_widget(bot_art_ing{self.indice})")
 		exec(f"bot_art_ing{self.indice}.bind(on_press = self.agregar_art)")
 		
-		exec(f"self.matrix_art = cargo_lista_confirmacion([lista.index(articulo),self.lab_desc_art{self.indice}.text, self.text_cant_art{self.indice}.text, self.text_precio_art{self.indice}.text],self.matrix_art)")		
-		
+		exec(f"self.matrix_art = cargo_lista_confirmacion([lista.index(articulo),self.lab_desc_art{self.indice}.text], self.matrix_art)")		
+	
 
 	def agregar_art(self, instance):
 		ldic = locals()	
