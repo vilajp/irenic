@@ -17,6 +17,7 @@ import csv
 list_desc = []
 lista = []
 proveedores = []
+clientes = []
 
 
 def cargo_lista_confirmacion(lista_muestro, lista_ing = []):
@@ -118,6 +119,9 @@ class VentasPage(BoxLayout):
 		but_carrito.bind(on_press = self.voy_carrito)
 
 	def ventas(self):
+		
+		seleccion_cliente()
+
 		self.clear_widgets()
 
 		desc = Label(
@@ -218,6 +222,79 @@ class VentasPage(BoxLayout):
 		self.add_widget(rotador)
 
 		
+	def seleccion_clientes(self):
+
+		with open("clientes.csv") as cli:
+			lista_clientes = csv.reader(cli, delimiter = ",")
+			indice = 1
+			for cliente in lista_clientes:
+				clientes.append(cliente)
+		
+		self.clear_widgets()
+
+		self.lab_ask = Label(text = "Seleccione Cliente:", size_hint = (1,.2))
+
+		self.add_widget(self.lab_ask)
+
+		self.grid_botones = BoxLayout(size_hint = (1,.2))
+
+		self.text_busco_cli = TextInput(
+							text = "",
+							multiline=False, 
+							readonly=False, 
+							halign="left", 
+							font_size=30,
+							size_hint=(1, .2),
+							#input_filter = "float",
+							write_tab = "False",
+							)
+		
+		grid_botones.add_widget(text_busco_cli)
+		self.text_busco_cli.bind(text = listo_clientes)
+
+	
+	def listo_clientes(self, instance, value):
+		self.layout.clear_widgets()
+		self.layout.cols=8
+	
+
+		self.box_text_lab = BoxLayout (orientation = "vertical",
+										size_hint = (1, .2),
+										)
+		self.but_agregar_cliente = Button(text="Nuevo Cliente")
+
+		self.but_agregar_cliente.bind(on_press=agrego_cliente)
+		
+		self.box_text_lab.add_widget(but_nuevo_cliente)
+
+		self.add_widget(self.box_text_lab)
+
+		indice = 0
+
+		if clientes != []:
+			for cliente in clientes:
+				if cliente[0]!= "NOMBRE" and value in cliente[1]:
+					
+					exec(f"self.lab_nombre_cli{indice} = Label(text="")")
+					exec(f"self.lab_localidad_cli{indice} = Label(text="")")
+					exec(f"self.lab_whatsapp_cli{indice} = Label(text="")")
+					exec(f"self.lab_instagram_cli{indice} = Label(text="")")
+					exec(f"self.lab_email_cli{indice} = Label(text="")")
+
+					self.bot_selec_cliente = Button(text="Seleccionar")
+					self.bot_modif_cliente = Button(text="Modificar")
+													
+					
+		
+
+					self.layout.bind(minimum_height=self.layout.setter('height'))
+		
+					rotador = ScrollView(size_hint = (1,1),
+										 size=(Window.width, Window.height),)
+					rotador.add_widget(self.layout)
+					self.add_widget(rotador)
+
+
 	def ingresos(self):
 
 		self.clear_widgets()
@@ -422,6 +499,112 @@ class VentasPage(BoxLayout):
 
 		irenic_app.ventas_page.ingresos()
 		irenic_app.ventas_page.botones_abajo()
+	
+	def nuevo_cliente(self):
+		#CODIGO,NOMBRE,LOCALIDAD,WHATSAPP,INSTAGRAM,EMAIL
+
+		self.box_text_lab.clear_widgets()
+		self.layout.clear_widgets()
+		self.layout.cols = 2
+		self.layout.size_hint_y = 1
+
+
+		label_ing = Label(text = "Ingrese los datos del Nuevo Cliente")
+		
+		lab_nombre = Label(text= "Nombre")
+		self.text_nombre = TextInput(text = "",
+							multiline=False, 
+							readonly=False, 
+							halign="left",
+							size_hint=(1, .2),
+							#input_filter = "float",
+							write_tab = "False",
+								)
+		self.layout.add_widget(lab_nombre)
+		self.layout.add_widget(self.text_nombre)
+		
+		lab_localidad = Label(text="Localidad")
+		self.text_localidad = TextInput(text = "",
+							multiline=False, 
+							readonly=False, 
+							halign="left",
+							size_hint=(1, .2),
+							#input_filter = "float",
+							write_tab = "False",
+								)
+		self.layout.add_widget(lab_localidad)
+		self.layout.add_widget(self.text_localidad)
+		
+		self.layout.add_widget(lab_telefono)
+		self.layout.add_widget(self.text_telefono)
+		
+		lab_whatsapp = Label(text="Whatsapp")
+		self.text_whatsapp = TextInput(text = "",
+							multiline=False, 
+							readonly=False, 
+							halign="left",
+							size_hint=(1, .2),
+							input_filter = "float",
+							write_tab = "False",
+								)
+		self.layout.add_widget(lab_whatsapp)
+		self.layout.add_widget(self.text_whatsapp)
+		
+		lab_instagram = Label(text="Instagram/facebook")
+		self.text_instagram = TextInput(text = "",
+							multiline=False, 
+							readonly=False, 
+							halign="left",
+							size_hint=(1, .2),
+							#input_filter = "float",
+							write_tab = "False",
+								)
+		self.layout.add_widget(lab_instagram)
+		self.layout.add_widget(self.text_instagram)
+		
+		lab_email = Label(text="email")
+		self.text_email = TextInput(text = "",
+							multiline=False, 
+							readonly=False, 
+							halign="left",
+							size_hint=(1, .2),
+							#input_filter = "float",
+							write_tab = "False",
+								)
+		self.layout.add_widget(lab_email)
+		self.layout.add_widget(self.text_email)
+		
+		bot_guardar_prov = Button(text="Guardar")
+		bot_guardar_prov.ID = "cliente"
+		bot_guardar_prov.bind(on_press=self.guardo_cliente)
+		
+		self.grid_botones.add_widget(label_ing)
+		
+		self.layout.add_widget(bot_guardar_prov)
+
+				
+	def guardo_cliente(self, instance):
+		self.registro_cli = f"{self.text_nombre.text.upper()},{self.text_localidad.text.upper()},{self.text_whatsapp.text},{self.text_instagram.text.upper()},{self.text_email.text.upper()}"
+		clientes.append(self.registro_prov.split(","))
+		with open("clientes.csv", mode = "w") as cli:
+			lista_clientes = csv.writer(cli, delimiter = ",", lineterminator='\n')
+			for cliente in clientes:		
+				lista_clientes.writerow(cliente)
+
+		irenic_app.ventas_page.ventas()
+		irenic_app.ventas_page.botones_abajo()
+
+
+	def guardo_proveedor(self, instance):
+		self.registro_prov = f"{self.text_nombre.text.upper()},{self.text_direccion.text.upper()},{self.text_localidad.text.upper()},{self.text_telefono.text},{self.text_whatsapp.text},{self.text_contacto.text.upper()},{self.text_contacto2.text.upper()}"
+		proveedores.append(self.registro_prov.split(","))
+		with open("proveedores.csv", mode = "w") as prov:
+			lista_proveedor = csv.writer(prov, delimiter = ",", lineterminator='\n')
+			for proveedor in proveedores:		
+				lista_proveedor.writerow(proveedor)
+
+		irenic_app.ventas_page.ingresos()
+		irenic_app.ventas_page.botones_abajo()
 		
 	
 	def voy_carrito(self,instance):
@@ -440,10 +623,13 @@ class VentasPage(BoxLayout):
 			if instance.ID == "ingresos":
 				if value.lower() in articulo[1].lower() and value != "" and articulo[1] != "ARTICULOS" and articulo[3] != "" and articulo[5]==self.lab_prov.text:
 					self.on_text_ingresos(articulo)
+					self.indice +=1	
+					
 			elif instance.ID == "ventas":		
 				if value.lower() in articulo[1].lower() and value != "" and articulo[1] != "ARTICULOS" and articulo[3] != "":
 					self.on_text_ventas(articulo)
-			self.indice +=1			
+					self.indice +=1	
+					
 	
 	def on_text_ventas(self, articulo):
 		art_ind_stock = lista.index(articulo)
@@ -552,8 +738,7 @@ class VentasPage(BoxLayout):
 		exec(f"bot_art_ing{self.indice}.ID = 'ingresos{cod_id}'")
 		exec(f"self.layout.add_widget(bot_art_ing{self.indice})")
 		exec(f"bot_art_ing{self.indice}.bind(on_press = self.agregar_art)")
-		
-		exec(f"self.matrix_art = cargo_lista_confirmacion([lista.index(articulo),self.lab_desc_art{self.indice}.text], self.matrix_art)")		
+		exec(f"self.matrix_art = cargo_lista_confirmacion([lista.index(articulo),self.lab_desc_art{self.indice}.text], self.matrix_art)")
 	
 
 	def agregar_art(self, instance):
@@ -586,9 +771,10 @@ class VentasPage(BoxLayout):
 
 	def agregar_art_ingresos(self, instance):
 
+			
 		ing_cod = self.matrix_art[int(instance.ID[-3:])][0]
 		ing_desc = self.matrix_art[int(instance.ID[-3:])][1]
-		
+
 		ldic = locals()
 		exec(f"ing_cant = self.text_cant_art{int(instance.ID[-3:])}.text", globals(), ldic)
 		ing_cant = ldic["ing_cant"]
