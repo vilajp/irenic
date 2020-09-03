@@ -81,7 +81,8 @@ class StartPage(BoxLayout):
 		if instance.text == "INGRESOS":
 			irenic_app.ventas_page.ingresos()
 		elif instance.text == "VENTAS":
-			irenic_app.ventas_page.ventas()
+			irenic_app.ventas_page.seleccion_clientes()
+			#irenic_app.ventas_page.ventas()
 		else:
 			informes = True
 
@@ -96,6 +97,11 @@ class VentasPage(BoxLayout):
 		super().__init__(**kwargs)
 
 		self.orientation = "vertical"
+
+		self.layout = GridLayout(cols = 5,
+							spacing=5, 
+							size_hint_y=None
+							)
 			
 		#AGREGO LOS WIDGETS QUE VOY A USAR MAS TARDE CUANDO HAGA LA LISTA
 	def botones_abajo(self):	
@@ -103,11 +109,11 @@ class VentasPage(BoxLayout):
 
 		self.but_vuelvo = Button(text = "Volver",
 								pos_hint={"center_x": 0.5, "center_y": 0.5},
-								#size_hint = (.3, .2),
+								#size_hint = (1,1),
 								)
 		but_carrito = Button(text = "Carrito",
 								pos_hint={"center_x": 0.5, "center_y": 0.5},
-								#size_hint = (.3, .2),
+								#size_hint = (1,1),
 								)
 
 		box_buttons.add_widget(self.but_vuelvo)
@@ -120,9 +126,9 @@ class VentasPage(BoxLayout):
 
 	def ventas(self):
 		
-		seleccion_cliente()
-
+		
 		self.clear_widgets()
+		self.layout.cols=5
 
 		desc = Label(
 					halign = "left", 
@@ -205,10 +211,7 @@ class VentasPage(BoxLayout):
 		
 		self.add_widget(titulos)
 
-		self.layout = GridLayout(cols = 5,
-							spacing=5, 
-							size_hint_y=None
-							)
+		
 		# Make sure the height is such that there is something to scroll.
 		self.layout.bind(minimum_height=self.layout.setter('height'))
 		
@@ -231,12 +234,13 @@ class VentasPage(BoxLayout):
 				clientes.append(cliente)
 		
 		self.clear_widgets()
+		
 
-		self.lab_ask = Label(text = "Seleccione Cliente:", size_hint = (1,.2))
+		self.lab_ask = Label(text = "Seleccione Cliente:", size_hint = (1,.1))
 
 		self.add_widget(self.lab_ask)
 
-		self.grid_botones = BoxLayout(size_hint = (1,.2))
+		self.grid_botones = BoxLayout(size_hint=(1,.1))
 
 		self.text_busco_cli = TextInput(
 							text = "",
@@ -244,56 +248,65 @@ class VentasPage(BoxLayout):
 							readonly=False, 
 							halign="left", 
 							font_size=30,
-							size_hint=(1, .2),
+							size_hint=(1,1),
 							#input_filter = "float",
 							write_tab = "False",
 							)
+
+		self.grid_botones.add_widget(self.text_busco_cli)
+		self.text_busco_cli.bind(text = self.listo_clientes)
+		self.add_widget(self.grid_botones)
 		
-		grid_botones.add_widget(text_busco_cli)
-		self.text_busco_cli.bind(text = listo_clientes)
-
-	
-	def listo_clientes(self, instance, value):
-		self.layout.clear_widgets()
-		self.layout.cols=8
-	
-
+		
 		self.box_text_lab = BoxLayout (orientation = "vertical",
-										size_hint = (1, .2),
+										size_hint = (1, .1),
 										)
-		self.but_agregar_cliente = Button(text="Nuevo Cliente")
-
-		self.but_agregar_cliente.bind(on_press=agrego_cliente)
 		
-		self.box_text_lab.add_widget(but_nuevo_cliente)
+		self.but_agregar_cliente = Button(text="Nuevo Cliente", size_hint = (1,1))
+		self.but_agregar_cliente.bind(on_press=self.nuevo_cliente)
+		
+		self.add_widget(self.layout)
+		self.layout.cols = 8
+		
+		self.box_text_lab.add_widget(self.but_agregar_cliente)
 
-		self.add_widget(self.box_text_lab)
+		
+		self.add_widget(self.box_text_lab)	
 
+
+	def listo_clientes(self, instance, value):
+		
+		self.layout.clear_widgets()
+			
 		indice = 0
 
 		if clientes != []:
 			for cliente in clientes:
-				if cliente[0]!= "NOMBRE" and value in cliente[1]:
+				if cliente[1]!= "NOMBRE" and value in cliente[1]:
 					
-					exec(f"self.lab_nombre_cli{indice} = Label(text="")")
-					exec(f"self.lab_localidad_cli{indice} = Label(text="")")
-					exec(f"self.lab_whatsapp_cli{indice} = Label(text="")")
-					exec(f"self.lab_instagram_cli{indice} = Label(text="")")
-					exec(f"self.lab_email_cli{indice} = Label(text="")")
-
-					self.bot_selec_cliente = Button(text="Seleccionar")
-					self.bot_modif_cliente = Button(text="Modificar")
-													
+					self.listado_clientes(cliente, indice)
+				indice +=1
 					
-		
+	def listado_clientes(self, cliente, indice):
 
-					self.layout.bind(minimum_height=self.layout.setter('height'))
-		
-					rotador = ScrollView(size_hint = (1,1),
-										 size=(Window.width, Window.height),)
-					rotador.add_widget(self.layout)
-					self.add_widget(rotador)
+		exec(f"self.lab_nombre_cli{indice} = Label(text=cliente[0])")
+		exec(f"self.lab_localidad_cli{indice} = Label(text=cliente[1])")
+		exec(f"self.lab_whatsapp_cli{indice} = Label(text=cliente[2])")
+		exec(f"self.lab_instagram_cli{indice} = Label(text=cliente[3])")
+		exec(f"self.lab_email_cli{indice} = Label(text=cliente[4])")
 
+		self.bot_selec_cliente = Button(text="Seleccionar")
+		self.bot_modif_cliente = Button(text="Modificar")
+		
+		exec(f"self.layout.add_widget(self.lab_nombre_cli{indice})")
+		exec(f"self.layout.add_widget(self.lab_localidad_cli{indice})")
+		exec(f"self.layout.add_widget(self.lab_whatsapp_cli{indice})")
+		exec(f"self.layout.add_widget(self.lab_instagram_cli{indice})")
+		exec(f"self.layout.add_widget(self.lab_email_cli{indice})")
+										
+		self.layout.bind(minimum_height=self.layout.setter('height'))
+		
+		
 
 	def ingresos(self):
 
@@ -500,10 +513,12 @@ class VentasPage(BoxLayout):
 		irenic_app.ventas_page.ingresos()
 		irenic_app.ventas_page.botones_abajo()
 	
-	def nuevo_cliente(self):
+	def nuevo_cliente(self, instance):
 		#CODIGO,NOMBRE,LOCALIDAD,WHATSAPP,INSTAGRAM,EMAIL
 
+		self.remove_widget(self.lab_ask)		
 		self.box_text_lab.clear_widgets()
+		self.grid_botones.clear_widgets()
 		self.layout.clear_widgets()
 		self.layout.cols = 2
 		self.layout.size_hint_y = 1
@@ -535,9 +550,7 @@ class VentasPage(BoxLayout):
 		self.layout.add_widget(lab_localidad)
 		self.layout.add_widget(self.text_localidad)
 		
-		self.layout.add_widget(lab_telefono)
-		self.layout.add_widget(self.text_telefono)
-		
+				
 		lab_whatsapp = Label(text="Whatsapp")
 		self.text_whatsapp = TextInput(text = "",
 							multiline=False, 
@@ -585,13 +598,13 @@ class VentasPage(BoxLayout):
 				
 	def guardo_cliente(self, instance):
 		self.registro_cli = f"{self.text_nombre.text.upper()},{self.text_localidad.text.upper()},{self.text_whatsapp.text},{self.text_instagram.text.upper()},{self.text_email.text.upper()}"
-		clientes.append(self.registro_prov.split(","))
+		clientes.append(self.registro_cli.split(","))
 		with open("clientes.csv", mode = "w") as cli:
 			lista_clientes = csv.writer(cli, delimiter = ",", lineterminator='\n')
 			for cliente in clientes:		
 				lista_clientes.writerow(cliente)
 
-		irenic_app.ventas_page.ventas()
+		irenic_app.ventas_page.seleccion_clientes()
 		irenic_app.ventas_page.botones_abajo()
 
 
