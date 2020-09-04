@@ -30,6 +30,14 @@ def cargo_art():
 			for cada_art in copio_lista:
 				lista.append(cada_art)
 
+def cargo_clientes():
+	with open("clientes.csv") as cli:
+			lista_clientes = csv.reader(cli, delimiter = ",")
+			
+			for cliente in lista_clientes:
+				clientes.append(cliente)
+		
+
 class irenicApp(App):
 	def build(self):
 		
@@ -67,6 +75,8 @@ class StartPage(BoxLayout):
 		
 		cargo_art()
 
+		cargo_clientes()
+
 		self.orientation = "vertical"
 		lista_botones = ["INGRESOS", "VENTAS", "INFORMES"]
 		for idx in range(len(lista_botones)):
@@ -103,7 +113,6 @@ class VentasPage(BoxLayout):
 							size_hint_y=None
 							)
 			
-		#AGREGO LOS WIDGETS QUE VOY A USAR MAS TARDE CUANDO HAGA LA LISTA
 	def botones_abajo(self):	
 		box_buttons = BoxLayout(size_hint = (1, .2))
 
@@ -130,6 +139,7 @@ class VentasPage(BoxLayout):
 		self.clear_widgets()
 		self.layout.cols=5
 
+		#AGREGO LOS WIDGETS QUE VOY A USAR MAS TARDE CUANDO HAGA LA LISTA
 		desc = Label(
 					halign = "left", 
 					#size = self.texture_size,
@@ -227,12 +237,6 @@ class VentasPage(BoxLayout):
 		
 	def seleccion_clientes(self):
 
-		with open("clientes.csv") as cli:
-			lista_clientes = csv.reader(cli, delimiter = ",")
-			indice = 1
-			for cliente in lista_clientes:
-				clientes.append(cliente)
-		
 		self.clear_widgets()
 		
 
@@ -277,27 +281,31 @@ class VentasPage(BoxLayout):
 	def listo_clientes(self, instance, value):
 		
 		self.layout.clear_widgets()
-			
+		self.layout.cols = 8
+		self.layout.size_hint_y=1	
 		indice = 0
 
 		if clientes != []:
 			for cliente in clientes:
-				if cliente[1]!= "NOMBRE" and value in cliente[1]:
-					
+
+				if cliente[1]!= "NOMBRE" and value.upper() in cliente[1] and value !="":
 					self.listado_clientes(cliente, indice)
 				indice +=1
 					
 	def listado_clientes(self, cliente, indice):
 
-		exec(f"self.lab_nombre_cli{indice} = Label(text=cliente[0])")
-		exec(f"self.lab_localidad_cli{indice} = Label(text=cliente[1])")
-		exec(f"self.lab_whatsapp_cli{indice} = Label(text=cliente[2])")
-		exec(f"self.lab_instagram_cli{indice} = Label(text=cliente[3])")
-		exec(f"self.lab_email_cli{indice} = Label(text=cliente[4])")
+		exec(f"self.lab_codigo_cli{indice} = Label(text=cliente[0], size_hint_y=None)")		
+		exec(f"self.lab_nombre_cli{indice} = Label(text=cliente[1],size_hint_y=None)")
+		exec(f"self.lab_localidad_cli{indice} = Label(text=cliente[2],size_hint_y=None)")
+		exec(f"self.lab_whatsapp_cli{indice} = Label(text=cliente[3],size_hint_y=None)")
+		exec(f"self.lab_instagram_cli{indice} = Label(text=cliente[4],size_hint_y=None)")
+		exec(f"self.lab_email_cli{indice} = Label(text=cliente[5],size_hint_y=None)")
 
-		self.bot_selec_cliente = Button(text="Seleccionar")
-		self.bot_modif_cliente = Button(text="Modificar")
+		self.bot_selec_cliente = Button(text="Seleccionar",size_hint_y=None)
 		
+		self.bot_modif_cliente = Button(text="Modificar",size_hint_y=None)
+				
+		exec(f"self.layout.add_widget(self.lab_codigo_cli{indice})")
 		exec(f"self.layout.add_widget(self.lab_nombre_cli{indice})")
 		exec(f"self.layout.add_widget(self.lab_localidad_cli{indice})")
 		exec(f"self.layout.add_widget(self.lab_whatsapp_cli{indice})")
@@ -305,6 +313,9 @@ class VentasPage(BoxLayout):
 		exec(f"self.layout.add_widget(self.lab_email_cli{indice})")
 										
 		self.layout.bind(minimum_height=self.layout.setter('height'))
+
+		self.layout.add_widget(self.bot_selec_cliente)
+		self.layout.add_widget(self.bot_modif_cliente)
 		
 		
 
@@ -322,13 +333,15 @@ class VentasPage(BoxLayout):
 			lista_proveedor = csv.reader(prov, delimiter = ",")
 			indice = 1
 			for proveedor in lista_proveedor:
-				proveedores.append(proveedor)
+				if not prov_udtd:
+					proveedores.append(proveedor)
 				if proveedor[0]!= "NOMBRE":
 					exec(f"bot_prov{indice} = Button(text = proveedor[0],)")
 					exec(f"self.grid_botones.add_widget(bot_prov{indice})")
 					exec(f"bot_prov{indice}.bind(on_press= self.articulo_proveedor)")
 					exec(f"bot_prov{indice}.ID = indice")
 					indice += 1
+			prov_udtd = True
 
 			exec(f"bot_prov{indice} = Button(text = 'Nuevo Proveedor',)")
 			exec(f"self.grid_botones.add_widget(bot_prov{indice})")
@@ -597,7 +610,9 @@ class VentasPage(BoxLayout):
 
 				
 	def guardo_cliente(self, instance):
-		self.registro_cli = f"{self.text_nombre.text.upper()},{self.text_localidad.text.upper()},{self.text_whatsapp.text},{self.text_instagram.text.upper()},{self.text_email.text.upper()}"
+		nro_codigo_cliente = int(clientes[len(clientes)-1][0])+1
+		codigo_cliente = "0" * (7 - len(str(nro_codigo_cliente))) + str(nro_codigo_cliente)
+		self.registro_cli = f"{codigo_cliente},{self.text_nombre.text.upper()},{self.text_localidad.text.upper()},{self.text_whatsapp.text},{self.text_instagram.text.upper()},{self.text_email.text.upper()}"
 		clientes.append(self.registro_cli.split(","))
 		with open("clientes.csv", mode = "w") as cli:
 			lista_clientes = csv.writer(cli, delimiter = ",", lineterminator='\n')
