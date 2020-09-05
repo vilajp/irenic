@@ -133,12 +133,12 @@ class VentasPage(BoxLayout):
 		self.but_vuelvo.bind(on_press = self.vuelvo_start)
 		but_carrito.bind(on_press = self.voy_carrito)
 
-	def ventas(self):
+	def ventas(self, codigo_cliente):
 		
-		
+		self.codigo_cliente = codigo_cliente.ID
 		self.clear_widgets()
 		self.layout.cols=5
-
+		self.layout.size_hint_y=None
 		#AGREGO LOS WIDGETS QUE VOY A USAR MAS TARDE CUANDO HAGA LA LISTA
 		desc = Label(
 					halign = "left", 
@@ -302,8 +302,11 @@ class VentasPage(BoxLayout):
 		exec(f"self.lab_email_cli{indice} = Label(text=cliente[5],size_hint_y=None)")
 
 		self.bot_selec_cliente = Button(text="Seleccionar",size_hint_y=None)
+		self.bot_selec_cliente.bind(on_press=self.sigo_con_ventas)
+		self.bot_selec_cliente.ID = str(indice)
 		
 		self.bot_modif_cliente = Button(text="Modificar",size_hint_y=None)
+		self.bot_modif_cliente.bind(on_press=self.modifico_cliente)
 				
 		exec(f"self.layout.add_widget(self.lab_codigo_cli{indice})")
 		exec(f"self.layout.add_widget(self.lab_nombre_cli{indice})")
@@ -316,7 +319,13 @@ class VentasPage(BoxLayout):
 
 		self.layout.add_widget(self.bot_selec_cliente)
 		self.layout.add_widget(self.bot_modif_cliente)
-		
+
+
+	def sigo_con_ventas(self, instance):
+		irenic_app.ventas_page.ventas(instance)	
+
+	def modifico_cliente(self, instance):
+		return
 		
 
 	def ingresos(self):
@@ -724,7 +733,7 @@ class VentasPage(BoxLayout):
 		
 		
 		#self.matrix_art.append([self.desc.text, self.precio.text, str(art_ind_stock)])
-		self.matrix_art = cargo_lista_confirmacion([self.desc.text, self.precio.text, str(art_ind_stock)], self.matrix_art)
+		self.matrix_art = cargo_lista_confirmacion([self.desc.text, self.precio.text, str(art_ind_stock), self.codigo_cliente], self.matrix_art)
 		
 		exec(f"but_agregar{str(self.indice)}.bind(on_press=self.agregar_art)")
 
@@ -783,7 +792,9 @@ class VentasPage(BoxLayout):
 		descripcion = self.matrix_art[int(instance.ID[-3:])][0]
 		precio_unit = self.matrix_art[int(instance.ID[-3:])][1]
 		codigo_art = self.matrix_art[int(instance.ID[-3:])][2]
+		codigo_cli = self.matrix_art[int(instance.ID[-3:])][3]
 		var_cantidad = f"self.cantidad{int(instance.ID[-3:])}.text"
+		
 		ldic = locals()
 		
 		exec(f"cantidad = {var_cantidad}", globals(), ldic)
@@ -793,7 +804,7 @@ class VentasPage(BoxLayout):
 			exec(f"subtotal = int(precio_unit) * int({var_cantidad})", globals(),ldic)
 			subtotal = ldic["subtotal"]
 			
-			exec(f"info = '{instance.ID[0:8].strip()},{codigo_art},#{descripcion},{precio_unit},{cantidad},{subtotal}'")
+			exec(f"info = '{instance.ID[0:8].strip()},{codigo_cli},{codigo_art},#{descripcion},{precio_unit},{cantidad},{subtotal}'")
 			info = ldic["info"]
 		return info
 
@@ -1023,7 +1034,7 @@ class CarritoPage(BoxLayout):
 		irenic_app.ventas_page.layout.clear_widgets()
 		irenic_app.ventas_page.buscador.text = ""
 		self.popup.dismiss()
-
+		irenic_app.ventas_page.seleccion_clientes()
 			
 
 if __name__ == '__main__':
