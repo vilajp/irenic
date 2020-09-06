@@ -18,6 +18,7 @@ list_desc = []
 lista = []
 proveedores = []
 clientes = []
+prov_udtd = False
 
 
 def cargo_lista_confirmacion(lista_muestro, lista_ing = []):
@@ -92,12 +93,11 @@ class StartPage(BoxLayout):
 			irenic_app.ventas_page.ingresos()
 		elif instance.text == "VENTAS":
 			irenic_app.ventas_page.seleccion_clientes()
-			#irenic_app.ventas_page.ventas()
 		else:
 			informes = True
 
 		irenic_app.ventas_page.botones_abajo()
-		irenic_app.screen_manager.current = 'Ventas'
+		irenic_app.screen_manager.current = "Ventas"
 
 			
 
@@ -111,6 +111,10 @@ class VentasPage(BoxLayout):
 		self.layout = GridLayout(cols = 5,
 							spacing=5, 
 							size_hint_y=None
+							)
+		self.rotador = ScrollView(
+							size_hint=(1, 1), 
+							#size=(Window.width, Window.height),
 							)
 			
 	def botones_abajo(self):	
@@ -226,18 +230,19 @@ class VentasPage(BoxLayout):
 		self.layout.bind(minimum_height=self.layout.setter('height'))
 		
 			
-		rotador = ScrollView(
-							size_hint=(1, 1), 
-							#size=(Window.width, Window.height),
-							)
 		
-		rotador.add_widget(self.layout)
-		self.add_widget(rotador)
+		self.rotador.add_widget(self.layout)
+		
+		self.add_widget(self.rotador)
+		
+		self.botones_abajo()	
+
 
 		
 	def seleccion_clientes(self):
 
 		self.clear_widgets()
+		self.layout.cols = 8
 		
 
 		self.lab_ask = Label(text = "Seleccione Cliente:", size_hint = (1,.1))
@@ -270,12 +275,12 @@ class VentasPage(BoxLayout):
 		self.but_agregar_cliente.bind(on_press=self.nuevo_cliente)
 		
 		self.add_widget(self.layout)
-		self.layout.cols = 8
 		
 		self.box_text_lab.add_widget(self.but_agregar_cliente)
 
 		
-		self.add_widget(self.box_text_lab)	
+		self.add_widget(self.box_text_lab)
+
 
 
 	def listo_clientes(self, instance, value):
@@ -341,6 +346,7 @@ class VentasPage(BoxLayout):
 		with open("proveedores.csv") as prov:
 			lista_proveedor = csv.reader(prov, delimiter = ",")
 			indice = 1
+			global prov_udtd
 			for proveedor in lista_proveedor:
 				if not prov_udtd:
 					proveedores.append(proveedor)
@@ -373,10 +379,10 @@ class VentasPage(BoxLayout):
 
 		self.layout.bind(minimum_height=self.layout.setter('height'))
 		
-		rotador = ScrollView(size_hint = (1,1),
+		self.rotador = ScrollView(size_hint = (1,1),
 							 size=(Window.width, Window.height),)
-		rotador.add_widget(self.layout)
-		self.add_widget(rotador)
+		self.rotador.add_widget(self.layout)
+		self.add_widget(self.rotador)
 
 	
 
@@ -666,6 +672,7 @@ class VentasPage(BoxLayout):
 				if value.lower() in articulo[1].lower() and value != "" and articulo[1] != "ARTICULOS" and articulo[3] != "":
 					self.on_text_ventas(articulo)
 					self.indice +=1	
+
 					
 	
 	def on_text_ventas(self, articulo):
@@ -742,6 +749,7 @@ class VentasPage(BoxLayout):
 		self.layout.add_widget(self.stock)
 		exec("self.layout.add_widget(%s)" %(self.var_cant))
 		exec(f"self.layout.add_widget(but_agregar{str(self.indice)})")
+
 					
 	def on_text_ingresos(self, articulo):
 		var_lab_desc_art="""Label(
@@ -935,7 +943,7 @@ class CarritoPage(BoxLayout):
 		if len(list_desc) > 0:
 
 			for i in range(len(list_desc)):
-				if list_desc[i].split(",")[2][0:-2] == message.split(",")[2][0:-2]:
+				if list_desc[i].split(",")[3][0:-2] == message.split(",")[3][0:-2]:
 					list_desc[i] = message
 					agrego = False
 					break
@@ -1004,13 +1012,14 @@ class CarritoPage(BoxLayout):
 								
 	def realizo_pago(self, instance):
 		if list_desc[0].split(",")[0]=="ventas":
+
 			with open("lista venta productos diaria.csv" , mode = "a") as v:
 				venta = csv.writer(v, delimiter = "," , lineterminator='\n')
 				for item in list_desc:
 					now = datetime.now()
 					linea = f"{now.date()},{now.time()},{item}"
 					venta.writerow(linea.split(','))
-					indice = int(item.split(",")[1])
+					indice = int(item.split(",")[2])
 					lista[indice][4] = str(int(lista[indice][4])-int(item.split(",")[-2]))
 					
 		elif list_desc[0].split(",")[0]=="ingresos":
@@ -1029,11 +1038,16 @@ class CarritoPage(BoxLayout):
 			for articulo in lista:
 				articulos.writerow(articulo)
 		
+		# esto es para volver a seleccionar cliente
+
+		instance.text = list_desc[0].split(",")[0]
+		
 		list_desc[:] = []
 		self.armo_items()
 		irenic_app.ventas_page.layout.clear_widgets()
 		irenic_app.ventas_page.buscador.text = ""
 		self.popup.dismiss()
+
 		irenic_app.ventas_page.seleccion_clientes()
 			
 
