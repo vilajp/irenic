@@ -88,10 +88,10 @@ class StartPage(BoxLayout):
 			button_start.bind(on_press = self.elijo_pantalla)
 
 	def elijo_pantalla(self, instance):
-
-		if instance.text == "INGRESOS":
+		
+		if instance.text.upper() == "INGRESOS":
 			irenic_app.ventas_page.ingresos()
-		elif instance.text == "VENTAS":
+		elif instance.text.upper() == "VENTAS":
 			irenic_app.ventas_page.seleccion_clientes()
 		else:
 			informes = True
@@ -117,7 +117,7 @@ class VentasPage(BoxLayout):
 							#size=(Window.width, Window.height),
 							)
 			
-	def botones_abajo(self):	
+	def botones_abajo(self):    
 		box_buttons = BoxLayout(size_hint = (1, .2))
 
 		self.but_vuelvo = Button(text = "Volver",
@@ -235,15 +235,14 @@ class VentasPage(BoxLayout):
 		
 		self.add_widget(self.rotador)
 		
-		self.botones_abajo()	
+		self.botones_abajo()    
 
 
 		
 	def seleccion_clientes(self):
 
 		self.clear_widgets()
-		self.layout.cols = 8
-		
+		self.rotador.clear_widgets()
 
 		self.lab_ask = Label(text = "Seleccione Cliente:", size_hint = (1,.1))
 
@@ -274,7 +273,10 @@ class VentasPage(BoxLayout):
 		self.but_agregar_cliente = Button(text="Nuevo Cliente", size_hint = (1,1))
 		self.but_agregar_cliente.bind(on_press=self.nuevo_cliente)
 		
+		
 		self.add_widget(self.layout)
+		self.layout.cols = 8
+		
 		
 		self.box_text_lab.add_widget(self.but_agregar_cliente)
 
@@ -287,7 +289,7 @@ class VentasPage(BoxLayout):
 		
 		self.layout.clear_widgets()
 		self.layout.cols = 8
-		self.layout.size_hint_y=1	
+		self.layout.size_hint_y=1   
 		indice = 0
 
 		if clientes != []:
@@ -299,7 +301,7 @@ class VentasPage(BoxLayout):
 					
 	def listado_clientes(self, cliente, indice):
 
-		exec(f"self.lab_codigo_cli{indice} = Label(text=cliente[0], size_hint_y=None)")		
+		exec(f"self.lab_codigo_cli{indice} = Label(text=cliente[0], size_hint_y=None)")     
 		exec(f"self.lab_nombre_cli{indice} = Label(text=cliente[1],size_hint_y=None)")
 		exec(f"self.lab_localidad_cli{indice} = Label(text=cliente[2],size_hint_y=None)")
 		exec(f"self.lab_whatsapp_cli{indice} = Label(text=cliente[3],size_hint_y=None)")
@@ -327,7 +329,7 @@ class VentasPage(BoxLayout):
 
 
 	def sigo_con_ventas(self, instance):
-		irenic_app.ventas_page.ventas(instance)	
+		irenic_app.ventas_page.ventas(instance) 
 
 	def modifico_cliente(self, instance):
 		return
@@ -535,7 +537,7 @@ class VentasPage(BoxLayout):
 		proveedores.append(self.registro_prov.split(","))
 		with open("proveedores.csv", mode = "w") as prov:
 			lista_proveedor = csv.writer(prov, delimiter = ",", lineterminator='\n')
-			for proveedor in proveedores:		
+			for proveedor in proveedores:       
 				lista_proveedor.writerow(proveedor)
 
 		irenic_app.ventas_page.ingresos()
@@ -544,7 +546,7 @@ class VentasPage(BoxLayout):
 	def nuevo_cliente(self, instance):
 		#CODIGO,NOMBRE,LOCALIDAD,WHATSAPP,INSTAGRAM,EMAIL
 
-		self.remove_widget(self.lab_ask)		
+		self.remove_widget(self.lab_ask)        
 		self.box_text_lab.clear_widgets()
 		self.grid_botones.clear_widgets()
 		self.layout.clear_widgets()
@@ -631,7 +633,7 @@ class VentasPage(BoxLayout):
 		clientes.append(self.registro_cli.split(","))
 		with open("clientes.csv", mode = "w") as cli:
 			lista_clientes = csv.writer(cli, delimiter = ",", lineterminator='\n')
-			for cliente in clientes:		
+			for cliente in clientes:        
 				lista_clientes.writerow(cliente)
 
 		irenic_app.ventas_page.seleccion_clientes()
@@ -643,7 +645,7 @@ class VentasPage(BoxLayout):
 		proveedores.append(self.registro_prov.split(","))
 		with open("proveedores.csv", mode = "w") as prov:
 			lista_proveedor = csv.writer(prov, delimiter = ",", lineterminator='\n')
-			for proveedor in proveedores:		
+			for proveedor in proveedores:       
 				lista_proveedor.writerow(proveedor)
 
 		irenic_app.ventas_page.ingresos()
@@ -666,12 +668,12 @@ class VentasPage(BoxLayout):
 			if instance.ID == "ingresos":
 				if value.lower() in articulo[1].lower() and value != "" and articulo[1] != "ARTICULOS" and articulo[3] != "" and articulo[5]==self.lab_prov.text:
 					self.on_text_ingresos(articulo)
-					self.indice +=1	
+					self.indice +=1 
 					
-			elif instance.ID == "ventas":		
+			elif instance.ID == "ventas":       
 				if value.lower() in articulo[1].lower() and value != "" and articulo[1] != "ARTICULOS" and articulo[3] != "":
 					self.on_text_ventas(articulo)
-					self.indice +=1	
+					self.indice +=1 
 
 					
 	
@@ -787,7 +789,7 @@ class VentasPage(BoxLayout):
 	
 
 	def agregar_art(self, instance):
-		ldic = locals()	
+		ldic = locals() 
 		exec(f"info = self.agregar_art_{instance.ID[0:8].strip()}(instance)", globals(), ldic)
 		info = ldic["info"]
 		
@@ -796,7 +798,7 @@ class VentasPage(BoxLayout):
 			irenic_app.screen_manager.current = 'Carrito'
 			
 
-	def agregar_art_ventas(self, instance):	
+	def agregar_art_ventas(self, instance): 
 		descripcion = self.matrix_art[int(instance.ID[-3:])][0]
 		precio_unit = self.matrix_art[int(instance.ID[-3:])][1]
 		codigo_art = self.matrix_art[int(instance.ID[-3:])][2]
@@ -832,12 +834,12 @@ class VentasPage(BoxLayout):
 		info = ""
 		
 		if ing_cant != "" and ing_precio!= "":
-			exec(f"info = '{instance.ID[0:8].strip()},{ing_cod},#{ing_desc},{ing_cant},{ing_precio}'")	
+			exec(f"info = '{instance.ID[0:8].strip()},{ing_cod},#{ing_desc},{ing_cant},{ing_precio}'")  
 			info = ldic["info"]
 		return info
 
 			
-		#Clock.schedule_once(self.vuelvo_ventas, 1)	
+		#Clock.schedule_once(self.vuelvo_ventas, 1) 
 	
 	def vuelvo_ventas(self, instance):
 		irenic_app.screen_manager.current = 'Ventas'
@@ -887,7 +889,7 @@ class CarritoPage(BoxLayout):
 							)
 			
 
-		but_vuelvo.bind(on_press=irenic_app.ventas_page.vuelvo_ventas)	
+		but_vuelvo.bind(on_press=irenic_app.ventas_page.vuelvo_ventas)  
 		but_pagar.bind(on_press = self.pido_confirmacion)
 
 		self.box_buttons.add_widget(but_vuelvo)
@@ -1038,17 +1040,12 @@ class CarritoPage(BoxLayout):
 			for articulo in lista:
 				articulos.writerow(articulo)
 		
-		# esto es para volver a seleccionar cliente
-
 		instance.text = list_desc[0].split(",")[0]
-		
 		list_desc[:] = []
-		self.armo_items()
-		irenic_app.ventas_page.layout.clear_widgets()
-		irenic_app.ventas_page.buscador.text = ""
+		
 		self.popup.dismiss()
 
-		irenic_app.ventas_page.seleccion_clientes()
+		exec(f"irenic_app.start_page.elijo_pantalla(instance)")
 			
 
 if __name__ == '__main__':
