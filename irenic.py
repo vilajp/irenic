@@ -94,7 +94,7 @@ class StartPage(BoxLayout):
 		elif instance.text.upper() == "VENTAS":
 			irenic_app.ventas_page.seleccion_clientes()
 		else:
-			informes = True
+			irenic_app.ventas_page.informes()
 
 		irenic_app.ventas_page.botones_abajo()
 		irenic_app.screen_manager.current = "Ventas"
@@ -136,6 +136,10 @@ class VentasPage(BoxLayout):
 
 		self.but_vuelvo.bind(on_press = self.vuelvo_start)
 		but_carrito.bind(on_press = self.voy_carrito)
+
+
+###############################################################################
+###############################################################################
 
 	def ventas(self, codigo_cliente):
 		
@@ -288,8 +292,10 @@ class VentasPage(BoxLayout):
 	def listo_clientes(self, instance, value):
 		
 		self.layout.clear_widgets()
-		self.layout.cols = 8
-		self.layout.size_hint_y=1   
+		self.layout.cols = 6
+		self.layout.size_hint_y= 1
+		self.spacing = 5
+		
 		indice = 0
 
 		if clientes != []:
@@ -301,23 +307,34 @@ class VentasPage(BoxLayout):
 					
 	def listado_clientes(self, cliente, indice):
 
-		exec(f"self.lab_codigo_cli{indice} = Label(text=cliente[0], size_hint_y=None)")     
-		exec(f"self.lab_nombre_cli{indice} = Label(text=cliente[1],size_hint_y=None)")
-		exec(f"self.lab_localidad_cli{indice} = Label(text=cliente[2],size_hint_y=None)")
-		exec(f"self.lab_whatsapp_cli{indice} = Label(text=cliente[3],size_hint_y=None)")
-		exec(f"self.lab_instagram_cli{indice} = Label(text=cliente[4],size_hint_y=None)")
-		exec(f"self.lab_email_cli{indice} = Label(text=cliente[5],size_hint_y=None)")
+		#exec(f"self.lab_codigo_cli{indice} = Label(text=cliente[0],height = '20dp', size_hint_y=None)")     
+		exec(f"self.lab_nombre_cli{indice} = Label(text=cliente[1],height = '20dp',size_hint_y=None)")
+		#exec(f"self.lab_localidad_cli{indice} = Label(text=cliente[2],height = '20dp',size_hint_y=None)")
+		exec(f"self.lab_whatsapp_cli{indice} = Label(text=cliente[3],height = '20dp',size_hint_y=None)")
+		exec(f"self.lab_instagram_cli{indice} = Label(text=cliente[4],height = '20dp',size_hint_y=None)")
+		exec(f"self.lab_email_cli{indice} = Label(text=cliente[5],height = '20dp',size_hint_y=None)")
 
-		self.bot_selec_cliente = Button(text="Seleccionar",size_hint_y=None)
+		self.bot_selec_cliente = Button(
+									text="Seleccionar",
+									height = "20dp", 
+									size_hint_y=None,
+									)
+		
 		self.bot_selec_cliente.bind(on_press=self.sigo_con_ventas)
 		self.bot_selec_cliente.ID = str(indice)
 		
-		self.bot_modif_cliente = Button(text="Modificar",size_hint_y=None)
+		self.bot_modif_cliente = Button(
+									text="Modificar",
+									height = "20dp",
+									size_hint_y=None,
+									)
+
 		self.bot_modif_cliente.bind(on_press=self.modifico_cliente)
+		self.bot_modif_cliente.ID = str(clientes.index(cliente))
 				
-		exec(f"self.layout.add_widget(self.lab_codigo_cli{indice})")
+		#exec(f"self.layout.add_widget(self.lab_codigo_cli{indice})")
 		exec(f"self.layout.add_widget(self.lab_nombre_cli{indice})")
-		exec(f"self.layout.add_widget(self.lab_localidad_cli{indice})")
+		#exec(f"self.layout.add_widget(self.lab_localidad_cli{indice})")
 		exec(f"self.layout.add_widget(self.lab_whatsapp_cli{indice})")
 		exec(f"self.layout.add_widget(self.lab_instagram_cli{indice})")
 		exec(f"self.layout.add_widget(self.lab_email_cli{indice})")
@@ -332,9 +349,181 @@ class VentasPage(BoxLayout):
 		irenic_app.ventas_page.ventas(instance) 
 
 	def modifico_cliente(self, instance):
-		return
-		
+		#CODIGO,NOMBRE,LOCALIDAD,WHATSAPP,INSTAGRAM,EMAIL
 
+		self.remove_widget(self.lab_ask)        
+		self.box_text_lab.clear_widgets()
+		self.grid_botones.clear_widgets()
+		self.layout.clear_widgets()
+		self.layout.cols = 2
+		self.layout.size_hint_y = 1
+
+
+		label_ing = Label(text = "Modifique los datos del Cliente")
+		
+		lab_nombre = Label(text= "Nombre")
+		self.text_nombre = TextInput(text = f"{clientes[int(instance.ID)][1]}",
+							multiline=False, 
+							readonly=False, 
+							halign="left",
+							size_hint=(1, .2),
+							#input_filter = "float",
+							write_tab = "False",
+								)
+		self.layout.add_widget(lab_nombre)
+		self.layout.add_widget(self.text_nombre)
+		
+		lab_localidad = Label(text="Localidad")
+		self.text_localidad = TextInput(text = f"{clientes[int(instance.ID)][2]}",
+							multiline=False, 
+							readonly=False, 
+							halign="left",
+							size_hint=(1, .2),
+							#input_filter = "float",
+							write_tab = "False",
+								)
+		self.layout.add_widget(lab_localidad)
+		self.layout.add_widget(self.text_localidad)
+		
+				
+		lab_whatsapp = Label(text="Whatsapp")
+		self.text_whatsapp = TextInput(text = f"{clientes[int(instance.ID)][3]}",
+							multiline=False, 
+							readonly=False, 
+							halign="left",
+							size_hint=(1, .2),
+							input_filter = "float",
+							write_tab = "False",
+								)
+		self.layout.add_widget(lab_whatsapp)
+		self.layout.add_widget(self.text_whatsapp)
+		
+		lab_instagram = Label(text="Instagram/facebook")
+		self.text_instagram = TextInput(text = f"{clientes[int(instance.ID)][4]}",
+							multiline=False, 
+							readonly=False, 
+							halign="left",
+							size_hint=(1, .2),
+							#input_filter = "float",
+							write_tab = "False",
+								)
+		self.layout.add_widget(lab_instagram)
+		self.layout.add_widget(self.text_instagram)
+		
+		lab_email = Label(text="email")
+		self.text_email = TextInput(text = f"{clientes[int(instance.ID)][5]}",
+							multiline=False, 
+							readonly=False, 
+							halign="left",
+							size_hint=(1, .2),
+							#input_filter = "float",
+							write_tab = "False",
+								)
+		self.layout.add_widget(lab_email)
+		self.layout.add_widget(self.text_email)
+		
+		bot_guardar_prov = Button(text="Guardar")
+		bot_guardar_prov.ID = f"modifcliente{clientes[int(instance.ID)][0]}"
+		bot_guardar_prov.bind(on_press=self.guardo_cliente)
+		
+		self.grid_botones.add_widget(label_ing)
+		
+		self.layout.add_widget(bot_guardar_prov)				
+		return
+	
+	def nuevo_cliente(self, instance):
+		#CODIGO,NOMBRE,LOCALIDAD,WHATSAPP,INSTAGRAM,EMAIL
+
+		self.remove_widget(self.lab_ask)        
+		self.box_text_lab.clear_widgets()
+		self.grid_botones.clear_widgets()
+		self.layout.clear_widgets()
+		self.layout.cols = 2
+		self.layout.size_hint_y = 1
+
+
+		label_ing = Label(text = "Ingrese los datos del Nuevo Cliente")
+		
+		lab_nombre = Label(text= "Nombre")
+		self.text_nombre = TextInput(text = "",
+							multiline=False, 
+							readonly=False, 
+							halign="left",
+							size_hint=(1, .2),
+							#input_filter = "float",
+							write_tab = "False",
+								)
+		self.layout.add_widget(lab_nombre)
+		self.layout.add_widget(self.text_nombre)
+		
+		lab_localidad = Label(text="Localidad")
+		self.text_localidad = TextInput(text = "",
+							multiline=False, 
+							readonly=False, 
+							halign="left",
+							size_hint=(1, .2),
+							#input_filter = "float",
+							write_tab = "False",
+								)
+		self.layout.add_widget(lab_localidad)
+		self.layout.add_widget(self.text_localidad)
+		
+				
+		lab_whatsapp = Label(text="Whatsapp")
+		self.text_whatsapp = TextInput(text = "",
+							multiline=False, 
+							readonly=False, 
+							halign="left",
+							size_hint=(1, .2),
+							input_filter = "float",
+							write_tab = "False",
+								)
+		self.layout.add_widget(lab_whatsapp)
+		self.layout.add_widget(self.text_whatsapp)
+		
+		lab_instagram = Label(text="Instagram/facebook")
+		self.text_instagram = TextInput(text = "",
+							multiline=False, 
+							readonly=False, 
+							halign="left",
+							size_hint=(1, .2),
+							#input_filter = "float",
+							write_tab = "False",
+								)
+		self.layout.add_widget(lab_instagram)
+		self.layout.add_widget(self.text_instagram)
+		
+		lab_email = Label(text="email")
+		self.text_email = TextInput(text = "",
+							multiline=False, 
+							readonly=False, 
+							halign="left",
+							size_hint=(1, .2),
+							#input_filter = "float",
+							write_tab = "False",
+								)
+		self.layout.add_widget(lab_email)
+		self.layout.add_widget(self.text_email)
+		
+		bot_guardar_prov = Button(text="Guardar")
+		bot_guardar_prov.ID = "cliente"
+		bot_guardar_prov.bind(on_press=self.guardo_cliente)
+		
+		self.grid_botones.add_widget(label_ing)
+		
+		self.layout.add_widget(bot_guardar_prov)
+	
+##################################################################################
+##################################################################################
+	def informes(self):
+		return
+
+
+
+
+
+##################################################################################
+##################################################################################	
 	def ingresos(self):
 
 		self.clear_widgets()
@@ -543,94 +732,18 @@ class VentasPage(BoxLayout):
 		irenic_app.ventas_page.ingresos()
 		irenic_app.ventas_page.botones_abajo()
 	
-	def nuevo_cliente(self, instance):
-		#CODIGO,NOMBRE,LOCALIDAD,WHATSAPP,INSTAGRAM,EMAIL
-
-		self.remove_widget(self.lab_ask)        
-		self.box_text_lab.clear_widgets()
-		self.grid_botones.clear_widgets()
-		self.layout.clear_widgets()
-		self.layout.cols = 2
-		self.layout.size_hint_y = 1
-
-
-		label_ing = Label(text = "Ingrese los datos del Nuevo Cliente")
-		
-		lab_nombre = Label(text= "Nombre")
-		self.text_nombre = TextInput(text = "",
-							multiline=False, 
-							readonly=False, 
-							halign="left",
-							size_hint=(1, .2),
-							#input_filter = "float",
-							write_tab = "False",
-								)
-		self.layout.add_widget(lab_nombre)
-		self.layout.add_widget(self.text_nombre)
-		
-		lab_localidad = Label(text="Localidad")
-		self.text_localidad = TextInput(text = "",
-							multiline=False, 
-							readonly=False, 
-							halign="left",
-							size_hint=(1, .2),
-							#input_filter = "float",
-							write_tab = "False",
-								)
-		self.layout.add_widget(lab_localidad)
-		self.layout.add_widget(self.text_localidad)
-		
-				
-		lab_whatsapp = Label(text="Whatsapp")
-		self.text_whatsapp = TextInput(text = "",
-							multiline=False, 
-							readonly=False, 
-							halign="left",
-							size_hint=(1, .2),
-							input_filter = "float",
-							write_tab = "False",
-								)
-		self.layout.add_widget(lab_whatsapp)
-		self.layout.add_widget(self.text_whatsapp)
-		
-		lab_instagram = Label(text="Instagram/facebook")
-		self.text_instagram = TextInput(text = "",
-							multiline=False, 
-							readonly=False, 
-							halign="left",
-							size_hint=(1, .2),
-							#input_filter = "float",
-							write_tab = "False",
-								)
-		self.layout.add_widget(lab_instagram)
-		self.layout.add_widget(self.text_instagram)
-		
-		lab_email = Label(text="email")
-		self.text_email = TextInput(text = "",
-							multiline=False, 
-							readonly=False, 
-							halign="left",
-							size_hint=(1, .2),
-							#input_filter = "float",
-							write_tab = "False",
-								)
-		self.layout.add_widget(lab_email)
-		self.layout.add_widget(self.text_email)
-		
-		bot_guardar_prov = Button(text="Guardar")
-		bot_guardar_prov.ID = "cliente"
-		bot_guardar_prov.bind(on_press=self.guardo_cliente)
-		
-		self.grid_botones.add_widget(label_ing)
-		
-		self.layout.add_widget(bot_guardar_prov)
-
+	
 				
 	def guardo_cliente(self, instance):
-		nro_codigo_cliente = int(clientes[len(clientes)-1][0])+1
-		codigo_cliente = "0" * (7 - len(str(nro_codigo_cliente))) + str(nro_codigo_cliente)
-		self.registro_cli = f"{codigo_cliente},{self.text_nombre.text.upper()},{self.text_localidad.text.upper()},{self.text_whatsapp.text},{self.text_instagram.text.upper()},{self.text_email.text.upper()}"
-		clientes.append(self.registro_cli.split(","))
+		if instance.ID == "cliente":
+			nro_codigo_cliente = int(clientes[len(clientes)-1][0])+1
+			codigo_cliente = "0" * (7 - len(str(nro_codigo_cliente))) + str(nro_codigo_cliente)
+			self.registro_cli = f"{codigo_cliente},{self.text_nombre.text.upper()},{self.text_localidad.text.upper()},{self.text_whatsapp.text},{self.text_instagram.text.upper()},{self.text_email.text.upper()}"
+			clientes.append(self.registro_cli.split(","))
+		else:
+			self.registro_cli = f"{instance.ID[12:]},{self.text_nombre.text.upper()},{self.text_localidad.text.upper()},{self.text_whatsapp.text},{self.text_instagram.text.upper()},{self.text_email.text.upper()}"		
+			clientes[int(instance.ID[12:])] = self.registro_cli.split(",")
+
 		with open("clientes.csv", mode = "w") as cli:
 			lista_clientes = csv.writer(cli, delimiter = ",", lineterminator='\n')
 			for cliente in clientes:        
