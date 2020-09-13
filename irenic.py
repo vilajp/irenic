@@ -246,8 +246,7 @@ class VentasPage(BoxLayout):
 	def seleccion_clientes(self):
 
 		self.clear_widgets()
-		self.rotador.clear_widgets()
-
+		
 		self.lab_ask = Label(text = "Seleccione Cliente:", size_hint = (1,.1))
 
 		self.add_widget(self.lab_ask)
@@ -269,7 +268,8 @@ class VentasPage(BoxLayout):
 		self.text_busco_cli.bind(text = self.listo_clientes)
 		self.add_widget(self.grid_botones)
 		
-		
+		self.rotador = ScrollView()
+
 		self.box_text_lab = BoxLayout (orientation = "vertical",
 										size_hint = (1, .1),
 										)
@@ -278,9 +278,9 @@ class VentasPage(BoxLayout):
 		self.but_agregar_cliente.bind(on_press=self.nuevo_cliente)
 		
 		
-		self.add_widget(self.layout)
-		self.layout.cols = 8
+		self.rotador.add_widget(self.layout)
 		
+		self.add_widget(self.rotador)
 		
 		self.box_text_lab.add_widget(self.but_agregar_cliente)
 
@@ -294,7 +294,8 @@ class VentasPage(BoxLayout):
 		self.layout.clear_widgets()
 		self.layout.cols = 6
 		self.layout.size_hint_y= 1
-		self.spacing = 5
+		
+		
 		
 		indice = 0
 
@@ -308,25 +309,49 @@ class VentasPage(BoxLayout):
 	def listado_clientes(self, cliente, indice):
 
 		#exec(f"self.lab_codigo_cli{indice} = Label(text=cliente[0],height = '20dp', size_hint_y=None)")     
-		exec(f"self.lab_nombre_cli{indice} = Label(text=cliente[1],height = '20dp',size_hint_y=None)")
+		exec(f"""self.lab_nombre_cli{indice} = Label(text=cliente[1],
+													height = '20dp',
+													size_hint_y=None,
+													width = '260dp',
+													size_hint_x=None,
+													)""")
 		#exec(f"self.lab_localidad_cli{indice} = Label(text=cliente[2],height = '20dp',size_hint_y=None)")
-		exec(f"self.lab_whatsapp_cli{indice} = Label(text=cliente[3],height = '20dp',size_hint_y=None)")
-		exec(f"self.lab_instagram_cli{indice} = Label(text=cliente[4],height = '20dp',size_hint_y=None)")
-		exec(f"self.lab_email_cli{indice} = Label(text=cliente[5],height = '20dp',size_hint_y=None)")
+		exec(f"""self.lab_whatsapp_cli{indice} = Label(text=cliente[3],
+													height = '20dp',
+													size_hint_y=None,
+													width = '100dp',
+													size_hint_x=None,
+													)""")
+		exec(f"""self.lab_instagram_cli{indice} = Label(text=cliente[4],
+													height = '20dp',
+													size_hint_y=None,
+													width = '100dp',
+													size_hint_x=None,
+													)""")
+		exec(f"""self.lab_email_cli{indice} = Label(text=cliente[5],
+													height = '20dp',
+													size_hint_y=None,
+													width = '210dp',
+													size_hint_x=None,
+													)""")
 
 		self.bot_selec_cliente = Button(
-									text="Seleccionar",
+									text="Selec",
 									height = "20dp", 
 									size_hint_y=None,
+									width = '50dp',
+									size_hint_x=None,
 									)
 		
 		self.bot_selec_cliente.bind(on_press=self.sigo_con_ventas)
 		self.bot_selec_cliente.ID = str(indice)
 		
 		self.bot_modif_cliente = Button(
-									text="Modificar",
+									text="Modif",
 									height = "20dp",
 									size_hint_y=None,
+									width = '50dp',
+									size_hint_x=None,
 									)
 
 		self.bot_modif_cliente.bind(on_press=self.modifico_cliente)
@@ -738,10 +763,10 @@ class VentasPage(BoxLayout):
 		if instance.ID == "cliente":
 			nro_codigo_cliente = int(clientes[len(clientes)-1][0])+1
 			codigo_cliente = "0" * (7 - len(str(nro_codigo_cliente))) + str(nro_codigo_cliente)
-			self.registro_cli = f"{codigo_cliente},{self.text_nombre.text.upper()},{self.text_localidad.text.upper()},{self.text_whatsapp.text},{self.text_instagram.text.upper()},{self.text_email.text.upper()}"
+			self.registro_cli = f"{codigo_cliente},{self.text_nombre.text.upper()},{self.text_localidad.text.upper()},{self.text_whatsapp.text},{self.text_instagram.text.upper()},{self.text_email.text.lower()}"
 			clientes.append(self.registro_cli.split(","))
 		else:
-			self.registro_cli = f"{instance.ID[12:]},{self.text_nombre.text.upper()},{self.text_localidad.text.upper()},{self.text_whatsapp.text},{self.text_instagram.text.upper()},{self.text_email.text.upper()}"		
+			self.registro_cli = f"{instance.ID[12:]},{self.text_nombre.text.upper()},{self.text_localidad.text.upper()},{self.text_whatsapp.text},{self.text_instagram.text.upper()},{self.text_email.text.lower()}"		
 			clientes[int(instance.ID[12:])] = self.registro_cli.split(",")
 
 		with open("clientes.csv", mode = "w") as cli:
