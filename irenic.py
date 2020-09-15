@@ -118,15 +118,19 @@ class VentasPage(BoxLayout):
 							)
 			
 	def botones_abajo(self):    
-		box_buttons = BoxLayout(size_hint = (1, .2))
+		box_buttons = BoxLayout(size_hint = (1,.2))
 
 		self.but_vuelvo = Button(text = "Volver",
-								pos_hint={"center_x": 0.5, "center_y": 0.5},
+								#pos_hint={"center_x": 0.1, "center_y": 0.1},
+								height = "50dp",
+								size_hint_y = None,
 								#size_hint = (1,1),
 								)
 		but_carrito = Button(text = "Carrito",
-								pos_hint={"center_x": 0.5, "center_y": 0.5},
+								#pos_hint={"center_x": 0.1, "center_y": 0.1},
 								#size_hint = (1,1),
+								height = "50dp",
+								size_hint_y = None,
 								)
 
 		box_buttons.add_widget(self.but_vuelvo)
@@ -271,10 +275,12 @@ class VentasPage(BoxLayout):
 		self.rotador = ScrollView()
 
 		self.box_text_lab = BoxLayout (orientation = "vertical",
-										size_hint = (1, .1),
+										size_hint = (1, .2),
 										)
 		
-		self.but_agregar_cliente = Button(text="Nuevo Cliente", size_hint = (1,1))
+		self.but_agregar_cliente = Button(text="Nuevo Cliente", 
+											size_hint = (1,1),
+											)
 		self.but_agregar_cliente.bind(on_press=self.nuevo_cliente)
 		
 		
@@ -541,6 +547,8 @@ class VentasPage(BoxLayout):
 ##################################################################################
 ##################################################################################
 	def informes(self):
+		self.clear_widgets()
+
 		return
 
 
