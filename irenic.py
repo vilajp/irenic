@@ -118,7 +118,7 @@ class VentasPage(BoxLayout):
 							)
 			
 	def botones_abajo(self):    
-		box_buttons = BoxLayout(size_hint = (1,.2))
+		self.box_buttons = BoxLayout(size_hint = (1,.2))
 
 		self.but_vuelvo = Button(text = "Volver",
 								#pos_hint={"center_x": 0.1, "center_y": 0.1},
@@ -133,10 +133,10 @@ class VentasPage(BoxLayout):
 								size_hint_y = None,
 								)
 
-		box_buttons.add_widget(self.but_vuelvo)
-		box_buttons.add_widget(but_carrito)
+		self.box_buttons.add_widget(self.but_vuelvo)
+		self.box_buttons.add_widget(but_carrito)
 		
-		self.add_widget(box_buttons)
+		self.add_widget(self.box_buttons)
 
 		self.but_vuelvo.bind(on_press = self.vuelvo_start)
 		but_carrito.bind(on_press = self.voy_carrito)
@@ -548,11 +548,49 @@ class VentasPage(BoxLayout):
 ##################################################################################
 	def informes(self):
 		self.clear_widgets()
+		box_ventas = BoxLayout(
+								orientation = "vertical",
+								)
+		box_rankings = BoxLayout(
+								orientation = "vertical",
+								)
 
-		return
+		bot_ventas_cli = Button(
+								text = "Ventas x Cliente",
+								)
+		bot_ventas_fecha = Button(
+								text = "Ventas x Fecha",
+								)
+		bot_ventas_art = Button(
+								text = "Ventas x Articulo",
+								)
+		bot_ventas_prov = Button(
+								text = "Ventas x Proveedor",
+								)
 
+		box_ventas.add_widget(bot_ventas_cli)
+		box_ventas.add_widget(bot_ventas_fecha)
+		box_ventas.add_widget(bot_ventas_prov)
+		box_ventas.add_widget(bot_ventas_art)
 
+		bot_rank_art = Button(
+							text= "Ranking x Articulo",
+							)
+		bot_rank_cli = Button(
+							text = "Ranking x Cliente",
+							)
+		bot_rank_margen = Button(
+							text = "Ranking x Margen",
+							)
 
+		box_rankings.add_widget(bot_rank_art)
+		box_rankings.add_widget(bot_rank_cli)
+		box_rankings.add_widget(bot_rank_margen)
+
+		self.add_widget(box_ventas)
+		self.add_widget(box_rankings)
+
+		
 
 
 ##################################################################################
