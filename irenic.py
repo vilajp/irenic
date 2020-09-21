@@ -92,7 +92,7 @@ class StartPage(BoxLayout):
 		if instance.text.upper() == "INGRESOS":
 			irenic_app.ventas_page.ingresos()
 		elif instance.text.upper() == "VENTAS":
-			irenic_app.ventas_page.seleccion_clientes()
+			irenic_app.ventas_page.seleccion_clientes(instance)
 		else:
 			irenic_app.ventas_page.informes()
 
@@ -149,6 +149,7 @@ class VentasPage(BoxLayout):
 		
 		self.codigo_cliente = codigo_cliente.ID
 		self.clear_widgets()
+		self.rotador.clear_widgets()
 		self.layout.cols=5
 		self.layout.size_hint_y=None
 		#AGREGO LOS WIDGETS QUE VOY A USAR MAS TARDE CUANDO HAGA LA LISTA
@@ -247,9 +248,10 @@ class VentasPage(BoxLayout):
 
 
 		
-	def seleccion_clientes(self):
+	def seleccion_clientes(self, origen):
 
 		self.clear_widgets()
+		self.rotador.clear_widgets()
 		
 		self.lab_ask = Label(text = "Seleccione Cliente:", size_hint = (1,.1))
 
@@ -548,49 +550,83 @@ class VentasPage(BoxLayout):
 ##################################################################################
 	def informes(self):
 		self.clear_widgets()
-		box_ventas = BoxLayout(
-								orientation = "vertical",
+		self.box_ventas = GridLayout(
+								cols = 1,
 								)
-		box_rankings = BoxLayout(
-								orientation = "vertical",
+		self.box_rankings = GridLayout(
+								cols = 1,
 								)
 
 		bot_ventas_cli = Button(
 								text = "Ventas x Cliente",
 								)
+		bot_ventas_cli.ID = "ventasxcliente"
+
 		bot_ventas_fecha = Button(
 								text = "Ventas x Fecha",
 								)
+		bot_ventas_fecha.ID = "ventasxfecha"
+
 		bot_ventas_art = Button(
 								text = "Ventas x Articulo",
 								)
+		bot_ventas_art.ID = "ventasxarticulo"
+								
 		bot_ventas_prov = Button(
 								text = "Ventas x Proveedor",
 								)
-
-		box_ventas.add_widget(bot_ventas_cli)
-		box_ventas.add_widget(bot_ventas_fecha)
-		box_ventas.add_widget(bot_ventas_prov)
-		box_ventas.add_widget(bot_ventas_art)
+		bot_ventas_prov.ID = "ventasxproveedor"
+								
+		bot_ventas_cli.bind(on_press=self.proceso_boton_ventas)
+		bot_ventas_art.bind(on_press=self.proceso_boton_ventas)
+		bot_ventas_prov.bind(on_press=self.proceso_boton_ventas)
+		bot_ventas_fecha.bind(on_press=self.proceso_boton_ventas)
+		
+		self.box_ventas.add_widget(bot_ventas_cli)
+		self.box_ventas.add_widget(bot_ventas_fecha)
+		self.box_ventas.add_widget(bot_ventas_prov)
+		self.box_ventas.add_widget(bot_ventas_art)
 
 		bot_rank_art = Button(
 							text= "Ranking x Articulo",
 							)
+		bot_rank_art.ID = "rankingxarticulo"
+
 		bot_rank_cli = Button(
 							text = "Ranking x Cliente",
 							)
+		bot_rank_cli.ID = "rankingxcliente"
+
 		bot_rank_margen = Button(
 							text = "Ranking x Margen",
 							)
+		bot_rank_margen.ID = "rankingxmargen"
 
-		box_rankings.add_widget(bot_rank_art)
-		box_rankings.add_widget(bot_rank_cli)
-		box_rankings.add_widget(bot_rank_margen)
+		bot_rank_art.bind(on_press=self.proceso_boton_ventas)
+		bot_rank_cli.bind(on_press=self.proceso_boton_ventas)
+		bot_rank_margen.bind(on_press=self.proceso_boton_ventas)
 
-		self.add_widget(box_ventas)
-		self.add_widget(box_rankings)
+		self.box_rankings.add_widget(bot_rank_art)
+		self.box_rankings.add_widget(bot_rank_cli)
+		self.box_rankings.add_widget(bot_rank_margen)
 
-		
+		self.add_widget(self.box_ventas)
+		self.add_widget(self.box_rankings)
+
+	def proceso_boton_ventas(self, instance):
+		#ventas x: cliente, articulo, proveedor y fecha
+		#ranking: articulo, cliente, margen
+		self.box_ventas.clear_widgets()
+		self.box_rankings.clear_widgets()
+
+		titulo_listado = Label(
+								text = f"{instance.text}",
+								height = "40dp",
+								size_hint_y = None,
+								)
+		self.box_ventas.add_widget(titulo_listado)
+
+
 
 
 ##################################################################################
