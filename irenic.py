@@ -250,6 +250,7 @@ class VentasPage(BoxLayout):
 		
 	def seleccion_clientes(self, origen):
 
+		
 		self.clear_widgets()
 		self.rotador.clear_widgets()
 		
@@ -272,6 +273,7 @@ class VentasPage(BoxLayout):
 
 		self.grid_botones.add_widget(self.text_busco_cli)
 		self.text_busco_cli.bind(text = self.listo_clientes)
+		self.text_busco_cli.ID = f"{origen}"
 		self.add_widget(self.grid_botones)
 		
 		self.rotador = ScrollView()
@@ -302,7 +304,7 @@ class VentasPage(BoxLayout):
 		self.layout.clear_widgets()
 		self.layout.cols = 6
 		self.layout.size_hint_y= 1
-		
+			
 		
 		
 		indice = 0
@@ -311,10 +313,10 @@ class VentasPage(BoxLayout):
 			for cliente in clientes:
 
 				if cliente[1]!= "NOMBRE" and value.upper() in cliente[1] and value !="":
-					self.listado_clientes(cliente, indice)
+					self.listado_clientes(cliente, indice, instance)
 				indice +=1
 					
-	def listado_clientes(self, cliente, indice):
+	def listado_clientes(self, cliente, indice, instance):
 
 		#exec(f"self.lab_codigo_cli{indice} = Label(text=cliente[0],height = '20dp', size_hint_y=None)")     
 		exec(f"""self.lab_nombre_cli{indice} = Label(text=cliente[1],
@@ -363,6 +365,8 @@ class VentasPage(BoxLayout):
 									)
 
 		self.bot_modif_cliente.bind(on_press=self.modifico_cliente)
+		self.de_donde_vengo = instance.ID
+	
 		self.bot_modif_cliente.ID = str(clientes.index(cliente))
 				
 		#exec(f"self.layout.add_widget(self.lab_codigo_cli{indice})")
@@ -379,7 +383,12 @@ class VentasPage(BoxLayout):
 
 
 	def sigo_con_ventas(self, instance):
-		irenic_app.ventas_page.ventas(instance) 
+		
+		if "ventasx" in f"{self.de_donde_vengo}":
+			irenic_app.ventas_page.informes()
+			
+		else:
+			irenic_app.ventas_page.ventas(instance) 
 
 	def modifico_cliente(self, instance):
 		#CODIGO,NOMBRE,LOCALIDAD,WHATSAPP,INSTAGRAM,EMAIL
@@ -624,8 +633,10 @@ class VentasPage(BoxLayout):
 								height = "40dp",
 								size_hint_y = None,
 								)
+		origen = instance.ID
 		self.box_ventas.add_widget(titulo_listado)
-
+		self.seleccion_clientes(origen)
+		self.botones_abajo()   
 
 
 
